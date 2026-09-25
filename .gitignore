@@ -35,4 +35,13 @@ google-services.*
 /Builder/mupdf-1.28.3/
 /Builder/mupdf-1.28.4/
 /Builder/mupdf-1.28.5/
-/.claude/
+/.claude/*
+
+# shiroikuma-doksho
+keystore.properties
+*.jks
+/app/src/main/jniLibs/
+/.scratch/
+# our guide and skills are tracked (upstream ignores /.claude/)
+!/.claude/skills/
+/.claude/settings.local.json
