@@ -71,6 +71,8 @@ public class ConfLineView extends FrameLayout {
     public void init(ReadInit init, ConfResponse onChange, ConfAction... actions) {
         LOG.d("CONF-init",1);
         if (actions == null || actions.length == 0) return;
+        // shiroikuma-doksho: a null entry is an option this build leaves out
+        actions = java.util.Arrays.stream(actions).filter(java.util.Objects::nonNull).toArray(ConfAction[]::new);
 
         int defaultAction = init.readValue();
         this.actions = actions;

@@ -449,7 +449,7 @@ import java.util.Map;
 
                 if (new File(BookCSS.get().downlodsPath).isDirectory()) {
                     menu.getMenu()
-                        .add("Librera/" + getString(R.string.downloads))
+                        .add(AppProfile.DATA_NAME + "/" + getString(R.string.downloads))
                         .setOnMenuItemClickListener(new OnMenuItemClickListener() {
 
                             @Override public boolean onMenuItemClick(MenuItem item) {
@@ -461,7 +461,7 @@ import java.util.Map;
                 }
                 if (AppSP.get().isEnableSync) {
                     menu.getMenu()
-                        .add("Librera" + "/" + "Sync")
+                        .add(AppProfile.DATA_NAME + "/" + "Sync")
                         .setOnMenuItemClickListener(new OnMenuItemClickListener() {
 
                             @Override public boolean onMenuItemClick(MenuItem item) {

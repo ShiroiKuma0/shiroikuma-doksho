@@ -118,6 +118,8 @@ file we patch, port our change onto the new structure.
 
 - **`app/build.gradle`**: our only line is `apply from: "$rootDir/shiroikuma/fork.gradle"` right
   before `android {`. Keep upstream's new `FDroidVersionNumber` / `FDroidCodeNumber` literals exactly.
+- **`README.md`**: ours replaces upstream's, and upstream edits theirs every release (the Android
+  versions table) — a conflict here is expected: keep ours.
 - **`CHANGELOG.md`**: our block sits above everything upstream has, so upstream's insertions merge
   cleanly; if it does conflict, keep upstream's text byte-for-byte and our block on top.
 
@@ -130,6 +132,20 @@ commits conflict, or a **semantic** conflict (hunks merge but behaviour changed)
 the conflicted hunks and what upstream did to that file, say which of **our** commits conflicts and
 why, and present options — resolve together, re-derive the commit, defer it, or `git rebase --abort`
 (returns the tree exactly to where it was).
+
+## Step 4b — Regenerate the de-branding
+
+```bash
+python3 shiroikuma/debrand.py          # strings of every locale + licenses.html
+grep -rn "librera\.mobi\|t\.me/Librera\|foobnix/LibreraReader" app/src/main/java --include=*.java \
+  | grep -v "IS_DOKSHO\|librerax/"     # new upstream links — route through shiroikuma.doksho.Doksho
+grep -rn '"[^"]*Librera[^"]*"' app/src/main/java --include=*.java | grep -v "LOG\.\|IS_DOKSHO\|DATA_NAME"
+grep -rn 'DOWNLOADS_DIR, "Librera\|getExternalStorageDirectory(), "Librera' app/src/main/java   # must be empty
+```
+
+A new hit is new upstream branding or a new write to the shared storage — handle it the way the
+existing ones are (see `CLAUDE.md` → *The fork layer*). If upstream changed its icon resources or
+added a new place that shows `@mipmap/icon_pdf_pro`'s siblings, re-run `shiroikuma/icon/gen-icons.py`.
 
 ## Step 5 — Reset the build counter
 

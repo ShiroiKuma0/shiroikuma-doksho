@@ -89,6 +89,7 @@ import com.foobnix.model.AppState;
 import com.foobnix.pdf.info.AndroidWhatsNew;
 import com.foobnix.pdf.info.Android6;
 import com.foobnix.pdf.info.AppsConfig;
+import shiroikuma.doksho.Doksho;
 import com.foobnix.pdf.info.BookmarksData;
 import com.foobnix.pdf.info.Clouds;
 import com.foobnix.pdf.info.ExtUtils;
@@ -149,9 +150,9 @@ public class PrefFragment2 extends UIFragment {
     public static final Pair<Integer, Integer> PAIR =
             new Pair<>(R.string.preferences, R.drawable.glyphicons_5_settings);
 
-    private static final String WWW_SITE = "https://librera.app/librera-reader/";
+    private static final String WWW_SITE = AppsConfig.IS_DOKSHO ? Doksho.GITHUB : "https://librera.app/librera-reader/";
     private static final String WWW_BETA_SITE = "http://beta.librera.mobi";
-    private static final String WWW_WIKI_SITE = "https://librera.mobi/faq";
+    private static final String WWW_WIKI_SITE = AppsConfig.IS_DOKSHO ? Doksho.HELP : "https://librera.mobi/faq";
     View section1, section2, section3, section4, section5, section6, section7, section8, section9, panelRecent,
             statusBarHack;
     TextView singIn, syncInfo, syncInfo2, syncHeader, syncNow;
@@ -1213,6 +1214,13 @@ public class PrefFragment2 extends UIFragment {
 
         final TextView onMail = inflate.findViewById(R.id.onMailSupport);
         asButton(onMail, getString(R.string.my_email));
+        if (AppsConfig.IS_DOKSHO) {
+            // no upstream support e-mail: support is the issue tracker, the web row below
+            ((View) onMail.getParent()).setVisibility(View.GONE);
+            ((TextView) inflate.findViewById(R.id.openWeb)).setText(Doksho.GITHUB.replace("https://", ""));
+            ((View) inflate.findViewById(R.id.openWiki).getParent()).setVisibility(View.VISIBLE);
+            ((TextView) inflate.findViewById(R.id.openWiki)).setText(Doksho.HELP.replace("https://", ""));
+        }
 
         onMail.setOnClickListener(new
 
@@ -1248,7 +1256,7 @@ public class PrefFragment2 extends UIFragment {
                 // marked in the list as the open-with menus mark the same modes
                 of(AppState.get().nameVerticalMode, AppState.READING_MODE_SCROLL).mark("①"),//
                 of(AppState.get().nameHorizontalMode, AppState.READING_MODE_BOOK).mark("②"),//
-                of(getString(R.string.librerax), AppState.READING_MODE_LIBRERAX).mark("③")
+                AppsConfig.IS_DOKSHO ? null : of(getString(R.string.librerax), AppState.READING_MODE_LIBRERAX).mark("③")
                         // not installed, it cannot open books: the download is offered instead
                         .requires(() -> LibreraX.isInstalled(getActivity()),
                                 () -> LibreraX.showNotInstalled(getActivity(), null)),//
@@ -1898,6 +1906,10 @@ public class PrefFragment2 extends UIFragment {
         whatIsNew.setOnClickListener(new View.OnClickListener() {
 
             @Override public void onClick(View v) {
+                if (AppsConfig.IS_DOKSHO) {
+                    Urls.open(getActivity(), Doksho.RELEASES);
+                    return;
+                }
                 Urls.openWhatIsNew(getActivity());
             }
         });
@@ -2673,6 +2685,9 @@ public class PrefFragment2 extends UIFragment {
         ((View) proText.getParent()).setVisibility(TxtUtils.visibleIf(!isPro && !AppsConfig.IS_FDROID));
         asButton(proText);
         proText.setText(getText(R.string.librera_pro));
+        if (AppsConfig.IS_DOKSHO) {
+            ((View) proText.getParent()).setVisibility(View.GONE);
+        }
         ((View) proText.getParent()).
 
                                             setOnClickListener(new OnClickListener() {

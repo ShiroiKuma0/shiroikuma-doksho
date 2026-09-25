@@ -62,6 +62,7 @@ public class AppSP {
     }
 
     public void init(Context c) {
+        AppProfile.initDataDir(c);
         sp = c.getSharedPreferences("AppTemp", Context.MODE_PRIVATE);
         load(c);
         getRootPath(c);
@@ -71,6 +72,9 @@ public class AppSP {
         return new File(c.getExternalFilesDir(null), "Demo").toString();
     }
     public String getRootDir(){
+        if (AppsConfig.IS_DOKSHO) {
+            return AppProfile.DATA_DIR.toString();
+        }
         return new File(Environment.getExternalStorageDirectory(), "Librera").toString();
     }
     public File getTempDownloadBooks(Context c){
@@ -80,7 +84,11 @@ public class AppSP {
     public String getRootPath(Context c){
         LOG.d("rootPath2","getRootPath-1",rootPath1, currentProfile);
         if(instance.currentProfile.isEmpty()) {
-            if (!Android6.canWrite(c)) {
+            if (AppsConfig.IS_DOKSHO) {
+                // shiroikuma-doksho: always the app's own directory, never Download/Librera
+                instance.rootPath1 =getRootDir();
+                instance.currentProfile = AppsConfig.IS_LOG ? "BETA" : AppProfile.DATA_NAME;
+            } else if (!Android6.canWrite(c)) {
                 if (LibreraSafSync.isActive(c)) {
                     // the Librera folder handed over: the app's own copy, kept in step with it
                     instance.rootPath1 = getTempDir(c);
