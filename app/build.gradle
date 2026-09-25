@@ -30,6 +30,8 @@ ext {
     println "Version: [" + versionNumber + " - " + codeNumber + "]"
 }
 
+apply from: "$rootDir/shiroikuma/fork.gradle"   // shiroikuma-doksho fork layer
+
 android {
     compileSdk = libs.versions.compileSdk.get().toInteger()
 

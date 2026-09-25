@@ -188,7 +188,7 @@ public enum BookType {
 
         path = path.toLowerCase(Locale.US);
 
-        if(AppsConfig.IS_FDROID && path.endsWith(".cbr")){
+        if(!AppsConfig.IS_RAR && path.endsWith(".cbr")){
             return false;
         }
 
