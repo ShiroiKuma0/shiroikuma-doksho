@@ -1,5 +1,6 @@
 package com.foobnix.pdf.info;
 
+import shiroikuma.doksho.Doksho;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -128,7 +129,7 @@ public class Urls {
     public static void rateIT(Context a) {
         try {
             if (AppsConfig.IS_FDROID) {
-                Urls.open(a, "https://github.com/foobnix/LibreraReader");
+                Urls.open(a, AppsConfig.IS_DOKSHO ? Doksho.GITHUB : "https://github.com/foobnix/LibreraReader");
             } else {
                 Urls.open(a, "market://details?id=" + a.getPackageName());
             }

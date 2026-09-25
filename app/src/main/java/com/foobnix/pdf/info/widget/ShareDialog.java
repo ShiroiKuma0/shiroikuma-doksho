@@ -274,7 +274,9 @@ public class ShareDialog {
                 items.add("① "+AppState.get().nameVerticalMode);
             }
 
-            items.add("Ⓧ " + a.getString(R.string.librerax));
+            if (!AppsConfig.IS_DOKSHO) {
+                items.add("Ⓧ " + a.getString(R.string.librerax));
+            }
 
             if (dc.isMusicianMode() == false) {
                 items.add("Ⓜ "+AppState.get().nameMusicianMode);
@@ -420,7 +422,7 @@ public class ShareDialog {
                         });
                     }
                 }
-                if (dc != null && which == i++) {
+                if (!AppsConfig.IS_DOKSHO && dc != null && which == i++) {
                     dc.onCloseActivityFinal(new Runnable() {
 
                         @Override public void run() {

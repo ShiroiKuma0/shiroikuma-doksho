@@ -37,6 +37,7 @@ import com.foobnix.pdf.info.wrapper.PasswordState;
 import com.foobnix.pdf.search.view.AsyncProgressResultToastTask;
 import com.foobnix.ui2.AppDB;
 
+import com.foobnix.pdf.info.AppsConfig;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -48,6 +49,18 @@ public class AppProfile {
     public static final String DEVICE_PREFIX = "device.";
     public static File DOWNLOADS_DIR =
             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+    // shiroikuma-doksho: the app's own files (cache, TTS, backups, cloud copies, downloads and the
+    // default profile root) live in its app-specific directory, never on the shared storage.
+    // Upstream keeps them in Download/Librera and /sdcard/Librera. DOWNLOADS_DIR above stays the
+    // default place to LOOK for books; nothing of ours is written there.
+    public static final String DATA_NAME = AppsConfig.IS_DOKSHO ? "白い熊 読書" : "Librera";
+    public static File DATA_DIR = new File(DOWNLOADS_DIR, "Librera");
+
+    public static void initDataDir(Context c) {
+        if (AppsConfig.IS_DOKSHO && c != null && c.getExternalFilesDir(null) != null) {
+            DATA_DIR = c.getExternalFilesDir(null);
+        }
+    }
     public static final String DEVICE_MODEL = DEVICE_PREFIX + Build.MODEL.replace(" ", "_");
     public static final String APP_STATE_JSON = "app-State.json";
     public static final String APP_CSS_JSON = "app-CSS.json";

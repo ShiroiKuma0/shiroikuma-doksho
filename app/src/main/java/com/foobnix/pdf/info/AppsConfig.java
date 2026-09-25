@@ -44,8 +44,9 @@ public class AppsConfig {
             IS_FDROID =
             LibreraBuildConfig.FLAVOR.equals("fdroid") || LibreraBuildConfig.FLAVOR.equals("huawei")
                     || LibreraBuildConfig.FLAVOR.equals("doksho");
+    public static final boolean IS_DOKSHO = LibreraBuildConfig.FLAVOR.equals("doksho");
     // shiroikuma-doksho: Google-free like F-Droid, but built with the real junrar, so CBR stays on
-    public static final boolean IS_RAR = !IS_FDROID || LibreraBuildConfig.FLAVOR.equals("doksho");
+    public static final boolean IS_RAR = !IS_FDROID || IS_DOKSHO;
     public static final List<String> testDevices = Arrays.asList(
             "0E97B0A7D10574E204947584CD0F713C"
 

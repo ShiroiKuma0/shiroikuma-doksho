@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- shiroikuma-doksho: our identity over upstream's res/values/config.xml (flavour resources win). -->
+<resources>
+    <string name="app_name_pro" translatable="false">白い熊 読書</string>
+    <!-- No upstream support address: crash reports open with an empty recipient, support is the
+         issue tracker on GitHub. -->
+    <string name="my_email" translatable="false"></string>
+    <string name="my_site" translatable="false"><![CDATA[<u>https://github.com/ShiroiKuma0/shiroikuma-doksho</u>]]></string>
+    <string name="wiki_url" translatable="false">https://github.com/ShiroiKuma0/shiroikuma-doksho#readme</string>
+</resources>
