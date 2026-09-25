@@ -1,0 +1,161 @@
+// ---------------------------------------------------------------------------------------------
+// shiroikuma-doksho fork layer — identity, signing, versioning and the buildFork pipeline.
+//
+// Applied from app/build.gradle by ONE added line, placed after upstream's `ext` blocks and
+// before its `android {` block, so the whole fork layer lives in a file upstream never touches.
+//
+//   - the `doksho` product flavour: app id shiroikuma.doksho, label 白い熊 読書, Google-free
+//     (the F-Droid stubs, copied into app/src/doksho/java), with the real junrar (CBR), no
+//     vmSafeMode, arm64-v8a only;
+//   - signing from the gitignored keystore.properties, fed into upstream's own
+//     signingConfigs.release through the RELEASE_* properties it reads;
+//   - versionName "<upstream release>+<BUILD_NUMBER padded to 3>", versionCode
+//     "<upstream code> * 10000 + BUILD_NUMBER", from shiroikuma/fork.properties;
+//   - `buildFork`: assemble dokshoRelease, copy the APK to ~/tmp under the house name, bump.
+//
+// See .claude/skills/build-apk.
+// ---------------------------------------------------------------------------------------------
+
+def repoRoot = rootProject.rootDir
+
+// --- Signing ---------------------------------------------------------------------------------
+// Upstream's signingConfigs.release reads RELEASE_STORE_FILE & co. from the global
+// ~/.gradle/gradle.properties. We supply them from keystore.properties instead.
+def keystoreProps = new Properties()
+def keystoreFile = new File(repoRoot, 'keystore.properties')
+if (keystoreFile.exists()) {
+    keystoreFile.withInputStream { keystoreProps.load(it) }
+} else {
+    println "shiroikuma: no keystore.properties — the release APK will not be signed with our key."
+}
+ext.RELEASE_STORE_FILE = keystoreProps.getProperty('storeFile', new File(repoRoot, 'keystore-missing.jks').path)
+ext.RELEASE_STORE_PASSWORD = keystoreProps.getProperty('storePassword', '')
+ext.RELEASE_KEY_ALIAS = keystoreProps.getProperty('keyAlias', '')
+ext.RELEASE_KEY_PASSWORD = keystoreProps.getProperty('keyPassword', '')
+
+// --- Upstream's other flavours ---------------------------------------------------------------
+// Every upstream flavour's manifestPlaceholders reads per-flavour ad / Drive keys from the global
+// gradle.properties; Gradle evaluates them all even though we build only `doksho`. Blank them.
+// A new upstream flavour shows up as "Could not get unknown property '<name>_…'" — add it here.
+['librera', 'pro', 'pdf_classic', 'ebooka', 'pdf_v2', 'tts_reader', 'epub_reader'].each { f ->
+    ['appGdriveKey', 'admobAppId', 'admobBannerId', 'admobFullId', 'admobRewardId'].each { k ->
+        if (!project.hasProperty("${f}_${k}")) {
+            ext."${f}_${k}" = ''
+        }
+    }
+}
+
+// --- Versioning ------------------------------------------------------------------------------
+// Upstream's release pair is the F-Droid one in app/build.gradle (FDroidVersionNumber /
+// FDroidCodeNumber): its release script writes them from the version it tags, whereas
+// app/gradle.properties drifts (tag 9.6.25 carries appVersionNumberIndex=24). Read, never edited.
+def forkProps = new Properties()
+def forkPropsFile = new File(repoRoot, 'shiroikuma/fork.properties')
+forkPropsFile.withInputStream { forkProps.load(it) }
+
+def upstreamVersionName = FDroidVersionNumber
+def upstreamVersionCode = (FDroidCodeNumber as int)
+def forkBuildNumber = forkProps.getProperty('BUILD_NUMBER', '1').trim() as int
+def forkLastBuiltVersionCode = forkProps.getProperty('LAST_BUILT_VERSION_CODE', '0').trim() as int
+
+// Zero-padded in the NAME only, so +002 sorts before +010; versionCode keeps the plain integer.
+def forkVersionName = "${upstreamVersionName}+${String.format('%03d', forkBuildNumber)}"
+def forkVersionCode = upstreamVersionCode * 10000 + forkBuildNumber
+
+// Upstream's defaultConfig and its androidComponents.onVariants read these two.
+ext.versionNumber = forkVersionName
+ext.codeNumber = forkVersionCode
+println "shiroikuma-doksho: ${forkVersionName} (${forkVersionCode})"
+
+// --- The doksho flavour ----------------------------------------------------------------------
+android {
+    productFlavors {
+        doksho {
+            dimension = "version"
+            applicationId = "shiroikuma.doksho"
+            manifestPlaceholders = [
+                    appName      : "白い熊 読書",
+                    appIcon      : "@mipmap/icon_pdf_pro",
+                    appRoundIcon : "@mipmap/icon_pdf_pro",
+                    appGdriveKey : "",
+                    admobAppId   : "",
+                    admobBannerId: "",
+                    admobFullId  : "",
+                    admobRewardId: "",
+                    appSafeMode  : "false"
+            ]
+            ndk {
+                abiFilters "arm64-v8a"
+            }
+        }
+    }
+}
+
+dependencies {
+    dokshoImplementation project(':libPro')     // ad / consent stubs, as for F-Droid
+    dokshoImplementation libs.junrar            // the real RAR reader (F-Droid stubs it out)
+}
+
+androidComponents {
+    // Upstream turns ABI splits on for four ABIs plus a universal APK; we ship one arm64 APK.
+    // finalizeDsl runs after the whole build script, so it wins over upstream's `splits` block.
+    finalizeDsl { dsl ->
+        dsl.splits.abi.enable = false
+    }
+    // Only our flavour is ever built.
+    beforeVariants(selector().all()) { variant ->
+        if (variant.flavorName != "doksho") {
+            variant.enable = false
+        }
+    }
+}
+
+// No google-services.json exists, and none is wanted: disable the plugin's per-variant tasks.
+tasks.configureEach { t ->
+    if (t.name.startsWith("process") && t.name.endsWith("GoogleServices")) {
+        t.enabled = false
+    }
+}
+
+// --- buildFork -------------------------------------------------------------------------------
+tasks.register("buildFork") {
+    group = "build"
+    description = "Build the signed doksho release APK, copy it to ~/tmp, and bump BUILD_NUMBER."
+    dependsOn("assembleDokshoRelease")
+
+    // Captured at configuration time — the configuration cache forbids `project` in actions.
+    def releaseApkDir = new File(projectDir, "build/outputs/apk/doksho/release")
+    def propsFile = forkPropsFile
+    def targetDir = new File(System.getProperty("user.home"), "tmp")
+    def apkName = "shiroikuma-doksho_${forkVersionName}_arm64-v8a.apk"
+    def builtCode = forkVersionCode
+    def lastBuiltCode = forkLastBuiltVersionCode
+    def nextBuildNumber = forkBuildNumber + 1
+
+    doFirst {
+        if (builtCode <= lastBuiltCode) {
+            throw new GradleException("versionCode ${builtCode} would not exceed the highest already " +
+                    "built (${lastBuiltCode}). Raise BUILD_NUMBER in shiroikuma/fork.properties.")
+        }
+    }
+
+    doLast {
+        def apks = releaseApkDir.listFiles({ d, n -> n.endsWith(".apk") } as FilenameFilter)
+        if (!apks) {
+            throw new GradleException("No APK found in ${releaseApkDir}")
+        }
+        targetDir.mkdirs()
+        def target = new File(targetDir, apkName)
+        if (target.exists()) {
+            throw new GradleException("${target} already exists — never overwrite a build.")
+        }
+        java.nio.file.Files.copy(apks.sort { it.name }[0].toPath(), target.toPath())
+        println "\u001B[1;36m>>> ${target.absolutePath}\u001B[0m"
+        println "\u001B[1;36m>>> versionCode ${builtCode}\u001B[0m"
+
+        propsFile.text = propsFile.text
+                .replaceAll(/(?m)^BUILD_NUMBER=\d+$/, "BUILD_NUMBER=${nextBuildNumber}")
+                .replaceAll(/(?m)^LAST_BUILT_VERSION_CODE=\d+$/, "LAST_BUILT_VERSION_CODE=${builtCode}")
+        println "\u001B[1;36m>>> BUILD_NUMBER bumped to ${nextBuildNumber}\u001B[0m"
+    }
+}

@@ -287,7 +287,7 @@ public class ExtUtils {
         }
         if (AppState.get().supportCBZ) {
             result.add(".cbz");
-            if (!AppsConfig.IS_FDROID) {
+            if (AppsConfig.IS_RAR) {
                 result.add(".cbr");
             }
         }

@@ -36,3 +36,10 @@ google-services.*
 /Builder/mupdf-1.28.4/
 /Builder/mupdf-1.28.5/
 .github
+
+# shiroikuma-doksho
+keystore.properties
+*.jks
+/app/src/main/jniLibs/
+/.scratch/
+.claude/settings.local.json
