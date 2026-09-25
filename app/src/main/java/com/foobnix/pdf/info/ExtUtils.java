@@ -801,6 +801,7 @@ public class ExtUtils {
         final TextView music = (TextView) view.findViewById(R.id.music);
         final TextView librerax = (TextView) view.findViewById(R.id.librerax);
         librerax.setText("Ⓧ " + c.getString(R.string.librerax));
+        librerax.setVisibility(AppsConfig.IS_DOKSHO ? View.GONE : View.VISIBLE);
 
         final EditText verticalEdit = (EditText) view.findViewById(R.id.verticalEdit);
         final EditText horizontalEdit = (EditText) view.findViewById(R.id.horizontalEdit);
@@ -990,7 +991,7 @@ public class ExtUtils {
         }
         LOG.d("showDocumentWithoutDialog2", uri.getPath(), percent, playlist);
 
-        if (AppSP.get().readingMode == AppState.READING_MODE_LIBRERAX && TxtUtils.isEmpty(playlist)
+        if (!AppsConfig.IS_DOKSHO && AppSP.get().readingMode == AppState.READING_MODE_LIBRERAX && TxtUtils.isEmpty(playlist)
                 && !uri.getPath().endsWith(Playlists.L_PLAYLIST)) {
             LibreraX.open(c, uri, percent, TxtUtils.isNotEmpty(bookmarkPageText) ? bookmarkPageText : bookmarkText);
             return;

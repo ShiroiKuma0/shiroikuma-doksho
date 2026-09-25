@@ -34,7 +34,7 @@ public class ExportConverter {
 
 
     public static void copyPlaylists() {
-        File oldDir = new File(AppProfile.DOWNLOADS_DIR, "Librera/Playlist");
+        File oldDir = new File(AppProfile.DATA_DIR, "Playlist");
         File[] list = oldDir.listFiles();
 
         if (list != null) {

@@ -17,6 +17,7 @@ import com.foobnix.android.utils.TxtUtils;
 import com.foobnix.dao2.FileMeta;
 import com.foobnix.model.AppBook;
 import com.foobnix.model.AppProfile;
+import com.foobnix.pdf.info.AppsConfig;
 import com.foobnix.model.AppSP;
 import com.foobnix.model.AppState;
 import com.foobnix.pdf.info.ExtUtils;
@@ -40,9 +41,9 @@ import java.util.Locale;
 public class BookCSS {
     /// PATHS
 
-    public static final String LIBRERA_CLOUD_DROPBOX = "Librera.Cloud-Dropbox";
-    public static final String LIBRERA_CLOUD_GOOGLEDRIVE = "Librera.Cloud-GoogleDrive";
-    public static final String LIBRERA_CLOUD_ONEDRIVE = "Librera.Cloud-OneDrive";
+    public static final String LIBRERA_CLOUD_DROPBOX = AppProfile.DATA_NAME + ".Cloud-Dropbox";
+    public static final String LIBRERA_CLOUD_GOOGLEDRIVE = AppProfile.DATA_NAME + ".Cloud-GoogleDrive";
+    public static final String LIBRERA_CLOUD_ONEDRIVE = AppProfile.DATA_NAME + ".Cloud-OneDrive";
     public static final String LINK_COLOR_UNIVERSAL = "#0066cc";
     public static final int TEXT_ALIGN_JUSTIFY = 0;
     public static final int TEXT_ALIGN_LEFT = 1;
@@ -66,16 +67,16 @@ public class BookCSS {
     private static BookCSS instance = new BookCSS();
     public String searchPathsJson;
 
-    public String cachePath = new File(AppProfile.DOWNLOADS_DIR, "Librera/Cache").getPath();
+    public String cachePath = new File(AppProfile.DATA_DIR, "Cache").getPath();
     public String downlodsPath;
 
     ///
-    public String ttsSpeakPath = new File(AppProfile.DOWNLOADS_DIR, "Librera/TTS").getPath();
-    public String backupPath = new File(AppProfile.DOWNLOADS_DIR, "Librera/Backup").getPath();
+    public String ttsSpeakPath = new File(AppProfile.DATA_DIR, "TTS").getPath();
+    public String backupPath = new File(AppProfile.DATA_DIR, "Backup").getPath();
 
-    public String syncDropboxPath = new File(AppProfile.DOWNLOADS_DIR, "Librera/" + LIBRERA_CLOUD_DROPBOX).getPath();
-    public String syncGdrivePath = new File(AppProfile.DOWNLOADS_DIR, "Librera/" + LIBRERA_CLOUD_GOOGLEDRIVE).getPath();
-    public String syncOneDrivePath = new File(AppProfile.DOWNLOADS_DIR, "Librera/" + LIBRERA_CLOUD_ONEDRIVE).getPath();
+    public String syncDropboxPath = new File(AppProfile.DATA_DIR, LIBRERA_CLOUD_DROPBOX).getPath();
+    public String syncGdrivePath = new File(AppProfile.DATA_DIR, LIBRERA_CLOUD_GOOGLEDRIVE).getPath();
+    public String syncOneDrivePath = new File(AppProfile.DATA_DIR, LIBRERA_CLOUD_ONEDRIVE).getPath();
     public String dictPath;
     public String fontFolder;
     public volatile int fontSizeSp = Dips.isXLargeScreen() ? 24 : 20;
@@ -215,7 +216,7 @@ public class BookCSS {
         fontWeight = 400;
 
         fontFolder = AppProfile.syncFontFolder.getPath();
-        downlodsPath = new File(AppProfile.DOWNLOADS_DIR, "Librera").getPath();
+        downlodsPath = (AppsConfig.IS_DOKSHO ? new File(AppProfile.DATA_DIR, "Downloads") : AppProfile.DATA_DIR).getPath();
         displayFontName = DEFAULT_FONT;
         normalFont = DEFAULT_FONT;
         boldFont = DEFAULT_FONT;

@@ -38,7 +38,8 @@ start from what upstream already has: `PageSearcher` reports every hit, `DrawVie
 | Our settings page | **`白い熊 読書 UI`** — holds every configurable item of our changes (spec to come from 白い熊) | not built yet |
 | Flavour | `doksho` — Google-free (F-Droid stubs in `app/src/doksho/java`), real junrar (CBR), `vmSafeMode=false`, arm64-v8a only | `shiroikuma/fork.gradle` |
 | `LibreraBuildConfig.FLAVOR` | `"doksho"` → `AppsConfig.IS_FDROID` true (Google-free paths), `AppsConfig.IS_RAR` true | `app/src/doksho/java/com/foobnix/LibreraBuildConfig.java`, `AppsConfig.java` |
-| Launcher icon | black-yellow traced icon | *(pending — first development step)* |
+| Launcher icon | Librera PRO's book traced as yellow line-art on black, 読 in place of Librera's "L" swash (confirmed by 白い熊 2026-09-25) | source `shiroikuma/icon/doksho-icon.svg` ← `trace-icon.py`; resources ← `gen-icons.py` into `app/src/doksho/res` |
+| App data | the app's own directory (`/sdcard/Android/data/shiroikuma.doksho/files`), **never** `/sdcard/Librera` or `Download/Librera` (白い熊 2026-09-25); default profile `白い熊 読書` | `AppProfile.DATA_DIR` / `DATA_NAME`, `AppSP.getRootDir` |
 | Keystore | `~/.android-keystores/shiroikuma-doksho.jks`, alias `doksho` | `keystore.properties` (gitignored) |
 
 ## Build (summary — details in `build-apk`)
@@ -65,10 +66,30 @@ Keep it a **small, legible layer** so rebases stay cheap:
 - `app/src/doksho/` — the flavour source set: `LibreraBuildConfig`, the Google-API stubs copied from
   `app/src/fdroid/java` (without the junrar stubs). If upstream's main code starts using a Google API
   the stubs lack, the compile fails in `app/src/doksho/java` — re-copy the stub from `app/src/fdroid/java`.
+- `app/src/main/java/shiroikuma/doksho/Doksho.java` — our name and GitHub URLs (site, Help, releases, issues).
+- **De-branding without touching upstream's resources** — flavour resources win over `main` by name:
+  - `shiroikuma/debrand.py` generates `app/src/doksho/res/values*/strings_doksho.xml` (every string
+    naming Librera, in all locales, with `白い熊 読書`; LibreraX kept) and
+    `app/src/doksho/assets/licenses.html` (our header on top, crediting Librera Reader). **Re-run it
+    after every upstream sync** and commit the output.
+  - `shiroikuma/icon/gen-icons.py` writes the icon overrides: `mipmap-anydpi-v26/icon_pdf_pro.xml`
+    (launcher, splash, TTS notification layouts, file info, popups all use it),
+    `mipmap-xxhdpi/icon_pdf_pro.png`, `drawable-xxhdpi/icon_pro_square.png`,
+    `drawable/ic_notification_librera.xml`, the foreground / monochrome vectors.
+  - `app/src/doksho/res/values/config_doksho.xml` — `my_site`, `wiki_url`, `my_email` (empty), `app_name_pro`.
 - Upstream files we patch (keep this list current):
   - `app/build.gradle` — one line: `apply from: "$rootDir/shiroikuma/fork.gradle"`, before `android {`.
-  - `app/src/main/java/com/foobnix/pdf/info/AppsConfig.java` — `doksho` joins `IS_FDROID`; `IS_RAR`.
-  - `app/src/main/java/com/foobnix/pdf/info/ExtUtils.java`, `org/ebookdroid/BookType.java` — CBR gated on `IS_RAR`.
+  - `AppsConfig.java` — `doksho` joins `IS_FDROID`; `IS_DOKSHO`; `IS_RAR`.
+  - `ExtUtils.java`, `org/ebookdroid/BookType.java` — CBR gated on `IS_RAR`; LibreraX mode hidden (`ExtUtils`).
+  - `model/AppProfile.java` (`DATA_DIR`, `DATA_NAME`, `initDataDir`), `model/AppSP.java` (root dir,
+    default profile, no Demo fallback), `LibreraApp.java` (`initDataDir`), `pdf/info/model/BookCSS.java`
+    (cache / TTS / backup / cloud / OPDS-download paths), `pdf/info/Clouds.java` (cloud folder names),
+    `pdf/info/ExportConverter.java`, `ui2/fragment/BrowseFragment2.java` (shortcut names) — app data.
+  - `ui2/fragment/PrefFragment2.java` — About: our GitHub as site and Help, releases as "What's new",
+    e-mail and PRO rows hidden, LibreraX reading mode dropped; `pdf/info/Urls.java` — rate → our GitHub;
+    `pdf/info/widget/ShareDialog.java` — LibreraX entry hidden; `pdf/info/view/confline/ConfLineView.java`
+    — null options skipped.
+  - `README.md` — ours (upstream edits theirs every release: on a rebase conflict keep ours).
   - `.gitignore` — our block at the end.
 
 ## Changelog

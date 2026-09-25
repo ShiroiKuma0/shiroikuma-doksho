@@ -20,6 +20,7 @@ import com.foobnix.android.utils.TxtUtils;
 import com.foobnix.ext.CacheZipUtils;
 import com.foobnix.hypen.HypenUtils;
 import com.foobnix.pdf.info.ADS;
+import com.foobnix.model.AppProfile;
 import com.foobnix.pdf.info.AppsConfig;
 import com.foobnix.pdf.info.IMG;
 import com.foobnix.pdf.info.Prefs;
@@ -59,6 +60,7 @@ public class LibreraApp extends Application {
         //AppsConfig.loadEngine(this);
 
         context = getApplicationContext();
+        AppProfile.initDataDir(context);
 
         // The DjVu render service's process draws pages for another app and nothing else:
         // it needs none of the reader, and must not cancel or prune the reader's work.

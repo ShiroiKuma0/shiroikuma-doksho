@@ -61,6 +61,7 @@ public class AppSP {
     }
 
     public void init(Context c) {
+        AppProfile.initDataDir(c);
         sp = c.getSharedPreferences("AppTemp", Context.MODE_PRIVATE);
         load(c);
         getRootPath(c);
@@ -70,6 +71,9 @@ public class AppSP {
         return new File(c.getExternalFilesDir(null), "Demo").toString();
     }
     public String getRootDir(){
+        if (AppsConfig.IS_DOKSHO) {
+            return AppProfile.DATA_DIR.toString();
+        }
         return new File(Environment.getExternalStorageDirectory(), "Librera").toString();
     }
     public File getTempDownloadBooks(Context c){
@@ -79,12 +83,12 @@ public class AppSP {
     public String getRootPath(Context c){
         LOG.d("rootPath2","getRootPath-1",rootPath1, currentProfile);
         if(instance.currentProfile.isEmpty()) {
-            if (!Android6.canWrite(c)) {
+            if (!AppsConfig.IS_DOKSHO && !Android6.canWrite(c)) {
                 instance.rootPath1 = getTempDir(c);
                 instance.currentProfile = "Demo";
             } else {
                 instance.rootPath1 =getRootDir();
-                instance.currentProfile = AppsConfig.IS_LOG ? "BETA" : "Librera";
+                instance.currentProfile = AppsConfig.IS_LOG ? "BETA" : AppProfile.DATA_NAME;
             }
 
         }
