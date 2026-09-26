@@ -1,3 +1,47 @@
+<!-- This file carries BOTH histories: 白い熊 読書's releases first, newest on top, then Librera
+     Reader's own changelog below, untouched. -->
+
+# 白い熊 読書 — changelog
+
+Releases of [白い熊 読書](https://github.com/ShiroiKuma0/shiroikuma-doksho), each built on a Librera
+Reader release. Librera Reader's own changelog follows unchanged below.
+
+## 白い熊 読書 9.6.25+005 — 2026-09-26
+
+The first release of 白い熊 読書 — built on **Librera Reader 9.6.25** (upstream tag `9.6.25`, 2026-09-19).
+
+### Major features
+- **Night mode as a yellow-on-black duotone.** Every pixel of a PDF / DjVu page is placed by its darkness between night paper (default `#000000`) and night ink (default `#FFFF00`): black print becomes full yellow, white paper full black, greys proportional — no threshold, smooth glyph edges. Works in both Vertical and Paged mode; text formats (EPUB, FB2, …) get yellow text on a black page; library covers keep their colours. **Duotone strength** 0–100 % blends it with Librera's plain inversion (0 = upstream's night mode).
+- **白い熊 読書 UI** — the fork's own settings page, opened by a **long-press** on the Preferences cog, either hamburger (main screen and Library page) or the Settings tab; a tap keeps the upstream action. kxkb-style layout: bold headings underlined only as wide as their text, a thin rule between groups, deep indents per level, tight rows. Sections: Export / Import · Fork behaviour · Colours · Borders & shapes · Fonts · Reading · About; every group ends in a **live preview** and the page repaints itself as you change it.
+- **App-wide black-yellow skin.** Library, settings, reader bars, all of Librera's dialogs and popup menus repainted from the page's settings: neutral text → text / secondary text, coloured text → accent (reds kept), neutral grounds and Librera's bar tint → our grounds, rounded boxes and pills → our border colour, width and corners, vector icons → accent. Book covers, page images, colour swatches, the reader's page area and web views are left alone. Master switch *白い熊 colours everywhere*; *Reset to the house defaults*.
+- **Export / Import** (the family panel): SAF export directory — shown in yellow once set, red while unset, with the last export under it; one `shiroikuma-doksho_<yyyy-MM-dd_HH-mm-ss>.zip` with categories **白い熊 読書 UI** (settings + imported fonts), **Settings** (app & reading settings, web dictionaries / searches, text replacements) and **Library** (bookmarks, progress, recent, favourites, excluded, tags, playlists). Written atomically (`.part` → rename). Success: a bordered info dialog whose OK closes the dialog, the panel and the page; import ends in *Later* / *Restart now*; failures leave the panel open. The app-lock password is never exported.
+- **保存復元 automation** (sister-app contract v2): `shiroikuma.doksho.action.EXPORT_STATE` / `LIST_CATEGORIES` / `CANCEL_EXPORT`, the `shiroikuma.doksho.automation` data door (describe / export / import / cancel, callers pinned by package and signing certificate), a dataSync foreground service with progress and heartbeat; *Automation export* (on), *Use authorization token?* (off) and the token row on the page.
+
+### UI & theming
+- Colour picker: one-click swatches of the colours chosen before, a preview labelled `#AARRGGBB`, A / R / G / B sliders; live, Cancel reverts.
+- Colours for screens (background, text, secondary text, accent, box border), bars & tabs (ground, ink), dialogs & menus (ground, text, border).
+- Border width 0–8 dp and corner roundness 0–40 dp for boxes & buttons and for dialogs & menus.
+- Fonts for interface text (font, weight 100–900, size 70–160 %) and the page's headings; each font shown in its own glyphs; import of .ttf / .otf / .ttc from anywhere (copied into the app, carried by the export).
+- Launcher icon: Librera PRO's book traced as yellow line-art on black, with 読 on the left page; the same icon on the splash, notifications, file info and menus.
+
+### Branding & behaviour
+- App id `shiroikuma.doksho`, label 白い熊 読書, installs next to every Librera.
+- Every mention of Librera in all 44 translated languages reads 白い熊 読書; website, Help, rate and "What's new" point to this repository; upstream's e-mail, Telegram and PRO upsell rows removed; the licences page credits Librera Reader.
+- LibreraX reading mode removed (upstream's separate closed-source app).
+- All app data — profiles, settings, cache, TTS, backups, cloud copies, OPDS downloads — lives in the app's own directory; nothing is written to `/sdcard/Librera` or `Download/Librera`.
+
+### Packaging
+- Google-free build (F-Droid stubs), but with the real RAR library, so **CBR comics open**.
+- No `vmSafeMode` (upstream's F-Droid build runs with the JIT off).
+- arm64-v8a only; native MuPDF 1.28.4 built from source.
+- Version `9.6.25+NNN`, versionCode `7338 × 10000 + NNN`; signed with the fork's own key.
+
+### Upstream in this base (not in upstream's CHANGELOG.md yet)
+- **9.6.25** (2026-09-19): crash fixes; cover radius 0–5 (0 returns to the old UI style).
+- **9.6.17** (2026-09-16): crash fix; LibreraX integration for opening books (removed in this fork).
+
+---
+
 # Changelog
 
 All notable changes to Librera Reader.
