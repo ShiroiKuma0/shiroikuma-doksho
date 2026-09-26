@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- shiroikuma-doksho: view-tag keys of the app-wide skin (shiroikuma.doksho.DokshoSkin). -->
+<resources>
+    <item name="doksho_skin_installed" type="id" />
+    <item name="doksho_skin_memo" type="id" />
+    <item name="doksho_skin_pill" type="id" />
+    <item name="doksho_skin_box" type="id" />
+</resources>

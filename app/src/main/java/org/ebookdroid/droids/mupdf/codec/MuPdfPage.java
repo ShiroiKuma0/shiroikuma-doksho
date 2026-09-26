@@ -258,7 +258,7 @@ public class MuPdfPage extends AbstractCodecPage {
 
             } else if (MagicHelper.isNeedMagic()) {
 
-                if (AppState.get().isCustomizeBgAndColors) {
+                if (AppState.get().isCustomizeBgAndColors || shiroikuma.doksho.DokshoNight.active()) {
                     renderPageSafe(muPdfDocument, pageHandle, mRect, ctm, bufferarray, -1, -1, -1);
                     MagicHelper.udpateColorsMagic(bufferarray);
                 } else {

@@ -35,7 +35,7 @@ start from what upstream already has: `PageSearcher` reports every hit, `DrawVie
 | --- | --- | --- |
 | applicationId | `shiroikuma.doksho` | `shiroikuma/fork.gradle` → flavour `doksho` |
 | App label | `白い熊 読書` | `shiroikuma/fork.gradle` → `manifestPlaceholders.appName` |
-| Our settings page | **`白い熊 読書 UI`** — holds every configurable item of our changes (spec to come from 白い熊) | not built yet |
+| Our settings page | **`白い熊 読書 UI`** — every configurable item of the fork; opened by a **long-press on the Settings tab** of the main screen | `shiroikuma/doksho/DokshoUiActivity.java` (see *The UI page* below) |
 | Flavour | `doksho` — Google-free (F-Droid stubs in `app/src/doksho/java`), real junrar (CBR), `vmSafeMode=false`, arm64-v8a only | `shiroikuma/fork.gradle` |
 | `LibreraBuildConfig.FLAVOR` | `"doksho"` → `AppsConfig.IS_FDROID` true (Google-free paths), `AppsConfig.IS_RAR` true | `app/src/doksho/java/com/foobnix/LibreraBuildConfig.java`, `AppsConfig.java` |
 | Launcher icon | Librera PRO's book traced as yellow line-art on black, 読 in place of Librera's "L" swash (confirmed by 白い熊 2026-09-25) | source `shiroikuma/icon/doksho-icon.svg` ← `trace-icon.py`; resources ← `gen-icons.py` into `app/src/doksho/res` |
@@ -91,6 +91,63 @@ Keep it a **small, legible layer** so rebases stay cheap:
     — null options skipped.
   - `README.md` — ours (upstream edits theirs every release: on a rebase conflict keep ours).
   - `.gitignore` — our block at the end.
+
+## The UI page, the skin, Export / Import, automation
+
+All in `app/src/main/java/shiroikuma/doksho/` (fork-only files):
+
+- **`DokshoUi`** — every setting of the page with its default (one prefs file, `doksho_ui`); the
+  defaults are pure `#000000` grounds and `#FFFF00` ink / borders. `stamp()` bumps on every change.
+- **`DokshoUiActivity`** — the page, built in code in the **kxkb UI page format**: 36 / 54 / 72 / 90 dp
+  indents (heading / sub-heading / row / sub-row), headings bold and underlined only as wide as their
+  text, a 1 px rule and 10 dp between top-level groups, tight 4–5 dp rows. Sections: **Export / Import**
+  (first — the panel row, whose summary shows the directory in yellow or "not set" in red and the last
+  export; then the three automation rows), **Fork behaviour** (master skin switch, reset), **Colours**
+  (Screens · Bars & tabs · Dialogs & menus), **Borders & shapes** (Boxes & buttons · Dialogs & menus:
+  width 0–8 dp, corners 0–40 dp), **Fonts** (Interface text · Page headings: font, weight 100–900,
+  size), **About**. Every group ends in a live **Preview**; the page repaints itself in the new values.
+- **`ColorPickerDialog`** — kxkb's picker: one-click swatches of the colours chosen before (newest
+  first, topped up with the house colours), a preview labelled `#AARRGGBB`, A/R/G/B sliders; live,
+  Cancel reverts, OK remembers. **`FontPickerDialog`** + **`DokshoFonts`** — every font drawn in its own
+  glyphs; import copies a .ttf/.otf/.ttc into `files/fonts` (travels in the export).
+- **`DokshoSkin`** + **`SkinDrawable`** — the app-wide skin. Librera paints in code, so a theme cannot
+  reach it: every window is walked after each layout pass and repainted by role (neutral ink → text /
+  secondary, coloured ink → accent, neutral grounds and Librera's tint fills → our grounds, rounded
+  boxes/pills → our border and corners, vector icons → accent; bitmaps, saturated colours, the reader's
+  `documentView`/`pager2`, `org.ebookdroid.*` and `NO_SKIN`-tagged views are left alone). Activities
+  are reached through lifecycle callbacks (`LibreraApp` hook); **dialogs and popups through their window
+  background**: the flavour overrides `bg_dialog_round_dark/light` and `bg_popup_round` with
+  `<drawable class="shiroikuma.doksho.SkinDrawable$…">`, which draws our dialog colours live and hands
+  its window to the walker — no upstream dialog call site is edited. `applyToLibrera()` also sets
+  Librera's own knobs (OLED theme, bar tint, UI text colour) whenever its state loads (`AppProfile.init`
+  hook). Keep rules: `shiroikuma/proguard-doksho.pro`.
+- **`DokshoNight`** — the reader's night mode as a duotone: each page pixel placed by its darkness
+  between night paper (default `#000000`) and night ink (default `#FFFF00`), so a black-and-white
+  book becomes entirely yellow on black; a strength slider blends it with Librera's plain inversion
+  (0 = upstream's night mode). Hooks: `MagicHelper` (`isNeedMagic`, `udpateColorsMagic`,
+  `getTextColor`/`getBgColor`), `MuPdfPage.render` (render un-inverted, then recolour),
+  `RawBitmap.invert` (no second inversion), `ImageExtractor.proccessOtherPage` (covers exempt via
+  `coverBegin/End`). Page section: Reading → Night mode.
+- **`ExportImportPanel`** + **`backup/ShiroikumaExport`** — the family Export / Import (ported from
+  termux-api): SAF export directory (device-local `doksho_eximport`), ZIP
+  `shiroikuma-doksho_<yyyy-MM-dd_HH-mm-ss>.zip` written as `.part` and renamed, categories **ui**
+  (page prefs + imported fonts), **settings** (`app-State/CSS/WebDict/WebSearch/TextReplacement.json`
+  + `AppTemp` prefs minus device keys), **library** (bookmarks, progress, recent, favourites, exclude,
+  tags, playlists). The app-lock password is never exported. Export flushes Librera's state and its
+  write queue first; import merges with `commit()`, writes files atomically, then `AppProfile.clear()`
+  so the running app cannot save its stale memory over the restore. Dialog chain as the sister apps:
+  success info → OK / Later closes info + panel + page; failures leave the panel open.
+- **`automation/*`** — the 保存復元 contract v2 (from `~/git/shiroikuma-jiyusagyoban/sister-app-contract-backup-automation-hand-off.md`),
+  ported from termux-api's Java set: `StateExportReceiver` (`shiroikuma.doksho.action.EXPORT_STATE` /
+  `LIST_CATEGORIES` / `CANCEL_EXPORT`, `goAsync` — the export is seconds), `AutomationProvider`
+  (`shiroikuma.doksho.automation`: describe / export / import / cancel, callers pinned by package +
+  certificate), `AutomationDataService` (dataSync FGS), `AutomationAuth` (prefs `shiroikuma_automation`,
+  never exported), `AutomationProgress`, `AutomationJobs`, `AutomationForeground`.
+- Manifest: `app/src/doksho/AndroidManifest.xml` (merged; upstream's untouched). Strings:
+  `app/src/doksho/res/values/strings_doksho_ui.xml`.
+
+Upstream files touched by this layer: `LibreraApp.java` (skin register), `model/AppProfile.java`
+(`applyToLibrera` before `TintUtil.init`), `pdf/SlidingTabLayout.java` + `ui2/MainTabs2.java` (long-press on the Settings tab — MainTabs2 re-binds every tab's long-press to the drawer after the bar is built, so the Settings tab is exempted there too; the SlidingTabLayout hook covers the bar rebuilding itself). The page also opens on a long-press of the Preferences cog (`onProfileEdit`, `ui2/fragment/PrefFragment2.java`) and of both hamburgers (`imageMenu1` in `ui2/MainTabs2.java`, `menu2` in `ui2/fragment/SearchFragment2.java`); a tap keeps upstream's action.
 
 ## Changelog
 

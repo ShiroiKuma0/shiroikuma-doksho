@@ -11,6 +11,8 @@ public final class Doksho {
     public static final String RELEASES = GITHUB + "/releases";
     public static final String ISSUES = GITHUB + "/issues";
     public static final String HELP = GITHUB + "#readme";
+    /** The repo / APK basename — and the prefix of every backup: shiroikuma-doksho_<stamp>.zip. */
+    public static final String EXPORT_SLUG = "shiroikuma-doksho";
 
     private Doksho() {
     }

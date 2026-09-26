@@ -163,6 +163,13 @@ new upstream code × 10000 + 1 is higher than any code of the old line, and `bui
 | Google-free + CBR | `doksho` in `IS_FDROID`; `IS_RAR`; `.cbr` gated on `IS_RAR` | `AppsConfig.java`, `ExtUtils.java`, `BookType.java` |
 | Gitignore block | `keystore.properties`, `*.jks`, `/app/src/main/jniLibs/`, `/.scratch/` | `.gitignore` |
 | Our guide + skills | present | `CLAUDE.md`, `.claude/skills/` |
+| UI page entry | long-press on the Settings tab → `DokshoUiActivity.open`, in BOTH places (MainTabs2 overwrites tab long-presses) | `pdf/SlidingTabLayout.java` `populateTabStrip`, `ui2/MainTabs2.java` tab-strip loop; also long-press on the Preferences cog `onProfileEdit` (`PrefFragment2`) and the hamburgers `imageMenu1` (`MainTabs2`), `menu2` (`SearchFragment2`) |
+| Skin hooks | `DokshoSkin.register(this)` after `initDataDir`; `DokshoSkin.applyToLibrera()` before `TintUtil.init()` | `LibreraApp.java`, `model/AppProfile.java` |
+| Skinned window backgrounds | `bg_dialog_round_dark/light`, `bg_popup_round` overridden with `SkinDrawable$…` — if upstream renames these or points its dialog/popup styles elsewhere, re-aim the overrides | `app/src/doksho/res/drawable/` vs `app/src/main/res/values/styles.xml` |
+| Reader page left alone | the skin skips ids `documentView`, `pager2` — check they still exist | `DokshoSkin.skipWhole`, reader layouts |
+| Night duotone hooks | `DokshoNight.active()` checks in `MagicHelper` (4), `MuPdfPage.render`, `RawBitmap.invert`, cover exemption in `ImageExtractor.proccessOtherPage` — if upstream reworks the night / "magic" pipeline, re-place them | those files |
+| Export sources | the `AppProfile.APP_*_JSON` names and `AppTemp` prefs the export carries | `backup/ShiroikumaExport.java` |
+| Automation surface | receiver / provider / service / meta-data | `app/src/doksho/AndroidManifest.xml` |
 | Feature patches | every shipped customization (keep this table growing as they land) | their files |
 
 Regression greps — each must print nothing (a rebase will not flag a new upstream flavour or stub gap):

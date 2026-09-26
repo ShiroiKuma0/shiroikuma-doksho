@@ -81,6 +81,9 @@ public class LibreraApp extends Application {
 
         context = getApplicationContext();
         AppProfile.initDataDir(context);
+        if (AppsConfig.IS_DOKSHO) {
+            shiroikuma.doksho.DokshoSkin.register(this); // shiroikuma-doksho: the app-wide skin
+        }
 
         registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
             @Override public void onActivityResumed(final Activity activity) {

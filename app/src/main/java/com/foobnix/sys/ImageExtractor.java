@@ -501,7 +501,14 @@ public class ImageExtractor {
         } else {
 
         }
-        bitmapRef = pageCodec.renderBitmap(width, height, rectF, false);
+        if (isNeedDisableMagicInPDFDjvu) {
+            shiroikuma.doksho.DokshoNight.coverBegin(); // shiroikuma-doksho: a cover keeps its colours at night
+        }
+        try {
+            bitmapRef = pageCodec.renderBitmap(width, height, rectF, false);
+        } finally {
+            shiroikuma.doksho.DokshoNight.coverEnd();
+        }
 
         bitmap = bitmapRef.getBitmap();
 

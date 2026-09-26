@@ -90,6 +90,7 @@ import com.foobnix.pdf.info.AndroidWhatsNew;
 import com.foobnix.pdf.info.Android6;
 import com.foobnix.pdf.info.AppsConfig;
 import shiroikuma.doksho.Doksho;
+import shiroikuma.doksho.DokshoUiActivity;
 import com.foobnix.pdf.info.BookmarksData;
 import com.foobnix.pdf.info.Clouds;
 import com.foobnix.pdf.info.ExtUtils;
@@ -2982,6 +2983,14 @@ public class PrefFragment2 extends UIFragment {
         };
         onProfile.setOnLongClickListener(onDefaultProfile);
         profileLetter.setOnLongClickListener(onDefaultProfile);
+
+        if (AppsConfig.IS_DOKSHO) {
+            // shiroikuma-doksho: a long-press on the cog opens 白い熊 読書 UI (a tap still opens profiles)
+            inflate.findViewById(R.id.onProfileEdit).setOnLongClickListener(v -> {
+                DokshoUiActivity.open(getActivity());
+                return true;
+            });
+        }
 
         inflate.findViewById(R.id.onProfileEdit)
                .

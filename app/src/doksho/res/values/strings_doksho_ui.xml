@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- shiroikuma-doksho: the 白い熊 読書 UI page, its Export / Import panel and the 保存復元 automation.
+     Not translated: the page is the fork's own, in the house's English + Japanese. -->
+<resources>
+
+    <!-- page sections -->
+    <string name="doksho_ui_sec_eximport" translatable="false">Export / Import</string>
+    <string name="doksho_ui_sec_behaviour" translatable="false">Fork behaviour</string>
+    <string name="doksho_ui_sec_colours" translatable="false">Colours</string>
+    <string name="doksho_ui_sec_shapes" translatable="false">Borders &amp; shapes</string>
+    <string name="doksho_ui_sec_fonts" translatable="false">Fonts</string>
+    <string name="doksho_ui_sec_about" translatable="false">About</string>
+
+    <string name="doksho_ui_sub_general" translatable="false">Screens</string>
+    <string name="doksho_ui_sub_bars" translatable="false">Bars &amp; tabs</string>
+    <string name="doksho_ui_sub_dialogs" translatable="false">Dialogs &amp; menus</string>
+    <string name="doksho_ui_sub_boxes" translatable="false">Boxes &amp; buttons</string>
+    <string name="doksho_ui_sub_ui_text" translatable="false">Interface text</string>
+    <string name="doksho_ui_sub_headings" translatable="false">Page headings</string>
+
+    <!-- behaviour -->
+    <string name="doksho_ui_skin" translatable="false">白い熊 colours everywhere</string>
+    <string name="doksho_ui_skin_desc" translatable="false">Paint the whole app — library, settings, reader bars, dialogs, menus — in the colours, borders and fonts set on this page. Off: Librera\'s own look.</string>
+    <string name="doksho_ui_reset" translatable="false">Reset to the house defaults</string>
+    <string name="doksho_ui_reset_desc" translatable="false">Black ground, yellow ink and borders — every setting on this page.</string>
+    <string name="doksho_ui_reset_confirm" translatable="false">Every colour, border, corner and font on this page goes back to the black-yellow defaults. Imported fonts and remembered colours are kept.</string>
+    <string name="doksho_ui_reset_action" translatable="false">Reset</string>
+
+    <!-- colours -->
+    <string name="doksho_ui_c_bg" translatable="false">Background</string>
+    <string name="doksho_ui_c_text" translatable="false">Text</string>
+    <string name="doksho_ui_c_text2" translatable="false">Secondary text</string>
+    <string name="doksho_ui_c_accent" translatable="false">Accent (icons · controls · links)</string>
+    <string name="doksho_ui_c_box_border" translatable="false">Border (boxes · buttons)</string>
+    <string name="doksho_ui_c_bar_bg" translatable="false">Bar background</string>
+    <string name="doksho_ui_c_bar_fg" translatable="false">Bar text &amp; icons</string>
+    <string name="doksho_ui_c_dlg_bg" translatable="false">Dialog background</string>
+    <string name="doksho_ui_c_dlg_text" translatable="false">Dialog text</string>
+    <string name="doksho_ui_c_dlg_border" translatable="false">Dialog border</string>
+
+    <!-- shapes -->
+    <string name="doksho_ui_border_w" translatable="false">Border width</string>
+    <string name="doksho_ui_radius" translatable="false">Corner roundness</string>
+
+    <!-- fonts -->
+    <string name="doksho_ui_font_family" translatable="false">Font</string>
+    <string name="doksho_ui_font_weight" translatable="false">Weight</string>
+    <string name="doksho_ui_font_size" translatable="false">Size</string>
+    <string name="doksho_ui_font_head_size" translatable="false">Size</string>
+    <string name="doksho_ui_head_sample" translatable="false">Colours · 見出し</string>
+    <string name="doksho_font_system" translatable="false">System default</string>
+    <string name="doksho_font_sample" translatable="false">AaIiMmOoQqWw 012 白い熊読書 áÁčČďĎ</string>
+    <string name="doksho_font_import" translatable="false">Import font…</string>
+    <string name="doksho_font_import_row" translatable="false">Import a font…</string>
+    <string name="doksho_font_import_desc" translatable="false">A .ttf / .otf / .ttc from anywhere — copied into the app, then offered in every font picker.</string>
+    <string name="doksho_font_imported" translatable="false">Imported: %1$s</string>
+    <string name="doksho_font_import_fail_title" translatable="false">Font import failed</string>
+
+    <!-- previews -->
+    <string name="doksho_ui_preview" translatable="false">Preview</string>
+    <string name="doksho_ui_pv_title" translatable="false">吾輩は猫である</string>
+    <string name="doksho_ui_pv_secondary" translatable="false">夏目漱石 · EPUB · 42 %</string>
+    <string name="doksho_ui_pv_link" translatable="false">Open book</string>
+    <string name="doksho_ui_pv_bar" translatable="false">Library</string>
+    <string name="doksho_ui_pv_box" translatable="false">A box</string>
+    <string name="doksho_ui_pv_pill" translatable="false">A button</string>
+    <string name="doksho_ui_pv_dialog_title" translatable="false">A dialog</string>
+    <string name="doksho_ui_pv_dialog_body" translatable="false">Its text, its border, its corners.</string>
+
+    <!-- reading -->
+    <string name="doksho_ui_sec_reading" translatable="false">Reading</string>
+    <string name="doksho_ui_sub_night" translatable="false">Night mode</string>
+    <string name="doksho_ui_c_night_text" translatable="false">Night ink (what black print becomes)</string>
+    <string name="doksho_ui_c_night_bg" translatable="false">Night paper (what white paper becomes)</string>
+    <string name="doksho_ui_night_strength" translatable="false">Duotone strength</string>
+    <string name="doksho_ui_night_off" translatable="false">off — Librera\'s own</string>
+    <string name="doksho_ui_night_sample" translatable="false">吾輩は猫である Aa 123</string>
+
+    <!-- Export / Import -->
+    <string name="doksho_eim_entry" translatable="false">Export / Import…</string>
+    <string name="doksho_eim_entry_desc" translatable="false">Back up this page, the reading settings and the library to one .zip, and restore them.</string>
+    <string name="doksho_eim_dir" translatable="false">Export directory</string>
+    <string name="doksho_eim_dir_unset" translatable="false">not set</string>
+    <string name="doksho_eim_title" translatable="false">Export / Import</string>
+    <string name="doksho_eim_desc" translatable="false">Tick what to carry, then export it as a single .zip — or import one and restore just those parts.</string>
+    <string name="doksho_eim_dir_caption" translatable="false">Export directory (tap to choose)</string>
+    <string name="doksho_eim_dir_unset_long" translatable="false">Not set — tap to choose a folder</string>
+    <string name="doksho_eim_warn_nodir" translatable="false">No export directory set.</string>
+    <string name="doksho_eim_warn_none" translatable="false">No export in this directory yet.</string>
+    <string name="doksho_eim_last_checking" translatable="false">Last export: …</string>
+    <string name="doksho_eim_last_line" translatable="false">Last export: %1$s</string>
+    <string name="doksho_eim_select_all" translatable="false">全選択</string>
+    <string name="doksho_eim_cat_ui" translatable="false">白い熊 読書 UI (colours · borders · fonts, with the imported fonts)</string>
+    <string name="doksho_eim_cat_settings" translatable="false">Settings (app · reading · dictionaries · text replacements)</string>
+    <string name="doksho_eim_cat_library" translatable="false">Library (bookmarks · progress · recent · favourites · tags · playlists)</string>
+    <string name="doksho_eim_export" translatable="false">Export</string>
+    <string name="doksho_eim_import" translatable="false">Import</string>
+    <string name="doksho_eim_cancel" translatable="false">Cancel</string>
+    <string name="doksho_eim_ok" translatable="false">OK</string>
+    <string name="doksho_eim_none_selected" translatable="false">No categories selected.</string>
+    <string name="doksho_eim_export_done_title" translatable="false">Export finished</string>
+    <string name="doksho_eim_export_done_body" translatable="false">Written to:\n%1$s\n\n%2$s · %3$d categories</string>
+    <string name="doksho_eim_export_fail_title" translatable="false">Export failed</string>
+    <string name="doksho_eim_export_fail" translatable="false">Export failed: %1$s</string>
+    <string name="doksho_eim_import_done_title" translatable="false">Import finished</string>
+    <string name="doksho_eim_import_fail_title" translatable="false">Import failed</string>
+    <string name="doksho_eim_import_fail" translatable="false">Import failed: %1$s</string>
+    <string name="doksho_eim_import_none" translatable="false">Not a 白い熊 読書 backup.</string>
+    <string name="doksho_eim_import_nothing" translatable="false">Nothing to restore.</string>
+    <string name="doksho_eim_ui_result" translatable="false">%1$d settings, %2$d fonts</string>
+    <string name="doksho_eim_files_result" translatable="false">%1$d files, %2$d preferences</string>
+    <string name="doksho_eim_restart_hint" translatable="false">Restart the app to apply everything restored.</string>
+    <string name="doksho_eim_restart_later" translatable="false">Later</string>
+    <string name="doksho_eim_restart_now" translatable="false">Restart now</string>
+
+    <!-- 保存復元 automation (sister-app contract v2) -->
+    <string name="doksho_auto_switch" translatable="false">Automation export</string>
+    <string name="doksho_auto_switch_desc" translatable="false">Let sister apps (白い熊 応用管理 · 白い熊 自由作業盤) run this export headlessly and back the data up. On by default.</string>
+    <string name="doksho_auto_require_token" translatable="false">Use authorization token?</string>
+    <string name="doksho_auto_require_token_desc" translatable="false">Off: any sister app may drive the automation. On: a caller must also present the token below. Either way the data door checks the caller’s package name and signature.</string>
+    <string name="doksho_auto_token" translatable="false">Automation token</string>
+    <string name="doksho_auto_token_desc" translatable="false">Tap to copy the full token · paste it into 自由作業盤「保存復元の設定」</string>
+    <string name="doksho_auto_token_copied" translatable="false">Token copied to the clipboard.</string>
+    <string name="doksho_auto_regenerate" translatable="false">Regenerate</string>
+    <string name="doksho_auto_token_regen_title" translatable="false">Regenerate the token?</string>
+    <string name="doksho_auto_token_regen_msg" translatable="false">The old token stops working at once. Every copy already pasted into 白い熊 自由作業盤 must be updated.</string>
+    <string name="doksho_auto_token_regenerated" translatable="false">New token generated — update the pasted copies.</string>
+    <string name="doksho_auto_notif_channel" translatable="false">Automation data</string>
+    <string name="doksho_auto_notif_export" translatable="false">Writing the backup…</string>
+    <string name="doksho_auto_notif_import" translatable="false">Restoring the backup…</string>
+    <string name="doksho_auto_notif_spooling" translatable="false">Reading the backup…</string>
+</resources>
