@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- shiroikuma-doksho: replaces upstream's bg_dialog_round_light. Draws the 白い熊 読書 UI dialog colours live
+     (or upstream's exact shape when the skin is off) and hands its window to the app-wide skin.
+     See shiroikuma.doksho.SkinDrawable. -->
+<drawable xmlns:android="http://schemas.android.com/apk/res/android"
+    class="shiroikuma.doksho.SkinDrawable$DialogLight" />

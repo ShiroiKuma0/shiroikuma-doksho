@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- shiroikuma-doksho: the fork's own components, merged into upstream's manifest (which stays
+     untouched): the 白い熊 読書 UI page and the 保存復元 automation surface of the sister-app
+     contract v2 (receiver · data door · its foreground service · capability meta-data). -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- The data door's foreground service; FOREGROUND_SERVICE itself is upstream's already. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+
+    <!-- Without these the automation replies' setPackage() fails silently on Android 11+ — BOTH
+         callers (応用管理 restores, 自由作業盤 runs the 保存復元 batch). -->
+    <queries>
+        <package android:name="shiroikuma.oyokanri" />
+        <package android:name="shiroikuma.jiyusagyoban" />
+    </queries>
+
+    <application>
+
+        <activity
+            android:name="shiroikuma.doksho.DokshoUiActivity"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden"
+            android:exported="false"
+            android:label="白い熊 読書 UI"
+            android:theme="@style/StyledIndicatorsBlack" />
+
+        <!-- §1: the unauthenticated half of the surface — writes where it is told to, reports what
+             it did. No android:permission by design (the caller cannot hold one). -->
+        <receiver
+            android:name="shiroikuma.doksho.automation.StateExportReceiver"
+            android:exported="true"
+            tools:ignore="ExportedReceiver">
+            <intent-filter>
+                <action android:name="${applicationId}.action.EXPORT_STATE" />
+                <action android:name="${applicationId}.action.LIST_CATEGORIES" />
+                <action android:name="${applicationId}.action.CANCEL_EXPORT" />
+            </intent-filter>
+        </receiver>
+
+        <!-- §2a: the data door — describe / export / import / cancel for a verified caller. -->
+        <provider
+            android:name="shiroikuma.doksho.automation.AutomationProvider"
+            android:authorities="${applicationId}.automation"
+            android:exported="true"
+            tools:ignore="ExportedContentProvider" />
+
+        <!-- Where a data-door job runs. -->
+        <service
+            android:name="shiroikuma.doksho.automation.AutomationDataService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
+
+        <!-- Capability discovery, readable without waking the app (integers — read with getInt). -->
+        <meta-data android:name="shiroikuma.automation.contract" android:value="2" />
+        <meta-data android:name="shiroikuma.automation.format" android:value="1" />
+        <meta-data android:name="shiroikuma.automation.min_format" android:value="1" />
+
+    </application>
+</manifest>

@@ -154,6 +154,9 @@ public class MagicHelper {
     }
 
     public static boolean isNeedMagic() {
+        if (shiroikuma.doksho.DokshoNight.active()) {
+            return true; // shiroikuma-doksho: the night duotone recolours every page
+        }
 
         boolean isDay = AppState.get().isDayNotInvert && //
                 (AppState.get().colorDayBg != AppState.COLOR_WHITE || //
@@ -405,10 +408,16 @@ public class MagicHelper {
     }
 
     public static int getTextColor() {
+        if (shiroikuma.doksho.DokshoNight.active()) {
+            return shiroikuma.doksho.DokshoNight.text();
+        }
         return AppState.get().isDayNotInvert ? AppState.get().colorDayText : AppState.get().colorNigthText;
     }
 
     public static int getBgColor() {
+        if (shiroikuma.doksho.DokshoNight.active()) {
+            return shiroikuma.doksho.DokshoNight.bg();
+        }
         if (AppState.get().isDayNotInvert && AppState.get().isUseBGImageDay) {
             // return Color.parseColor("#EFEBDE");
         }
@@ -588,6 +597,10 @@ public class MagicHelper {
     }
 
     public static void udpateColorsMagic(int[] allpixels) {
+        if (shiroikuma.doksho.DokshoNight.active()) {
+            shiroikuma.doksho.DokshoNight.apply(allpixels); // shiroikuma-doksho: night duotone
+            return;
+        }
         if (!isNeedMagic()) {
             return;
         }
