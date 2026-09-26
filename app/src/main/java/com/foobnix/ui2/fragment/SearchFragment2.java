@@ -589,6 +589,13 @@ public class SearchFragment2 extends UIFragment<FileMeta> {
             }
         });
 
+        if (AppsConfig.IS_DOKSHO) {
+            // shiroikuma-doksho: a long-press on the hamburger opens 白い熊 読書 UI (a tap still opens the drawer)
+            menu2.setOnLongClickListener(v -> {
+                shiroikuma.doksho.DokshoUiActivity.open(getActivity());
+                return true;
+            });
+        }
         menu2.setOnClickListener(new OnClickListener() {
             @Override public void onClick(View view) {
                 if (view.getRootView()

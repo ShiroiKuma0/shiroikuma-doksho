@@ -456,6 +456,13 @@ public class MainTabs2 extends AdsFragmentActivity {
 
         drawerLayout = findViewById(R.id.drawer_layout);
 
+        if (AppsConfig.IS_DOKSHO) {
+            // shiroikuma-doksho: a long-press on the hamburger opens 白い熊 読書 UI (a tap still opens the drawer)
+            imageMenu.setOnLongClickListener(v -> {
+                shiroikuma.doksho.DokshoUiActivity.open(MainTabs2.this);
+                return true;
+            });
+        }
         imageMenu.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -561,6 +568,14 @@ public class MainTabs2 extends AdsFragmentActivity {
         if (!AppState.get().tapPositionTop || !AppState.get().tabWithNames) {
             for (int i = 0; i < indicator.getmTabStrip().getChildCount(); i++) {
                 View child = indicator.getmTabStrip().getChildAt(i);
+                if (AppsConfig.IS_DOKSHO && i < adapter.getCount() && adapter.getItem(i) instanceof PrefFragment2) {
+                    // shiroikuma-doksho: the Settings cog keeps its long-press — it opens 白い熊 読書 UI
+                    child.setOnLongClickListener(v -> {
+                        shiroikuma.doksho.DokshoUiActivity.open(MainTabs2.this);
+                        return true;
+                    });
+                    continue;
+                }
                 child.setOnLongClickListener(new View.OnLongClickListener() {
                     @Override
                     public boolean onLongClick(View v) {

@@ -164,6 +164,9 @@ public class AppProfile {
                     .load(c);
         }
 
+        if (AppsConfig.IS_DOKSHO) {
+            shiroikuma.doksho.DokshoSkin.applyToLibrera(); // shiroikuma-doksho: our colours into Librera's knobs
+        }
         TintUtil.init();
         BookCSS.get()
                .load1(c);

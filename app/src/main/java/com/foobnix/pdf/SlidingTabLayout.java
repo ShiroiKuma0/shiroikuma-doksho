@@ -597,6 +597,14 @@ public class SlidingTabLayout extends HorizontalScrollView {
                 });
 
 
+                if (AppsConfig.IS_DOKSHO && adapter.getItem(i) instanceof com.foobnix.ui2.fragment.PrefFragment2) {
+                    // shiroikuma-doksho: a long-press on the Settings cog opens 白い熊 読書 UI
+                    tabView.setOnLongClickListener(v -> {
+                        shiroikuma.doksho.DokshoUiActivity.open(getContext());
+                        return true;
+                    });
+                }
+
                 LinearLayout.LayoutParams
                         params =
                         new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, 1);

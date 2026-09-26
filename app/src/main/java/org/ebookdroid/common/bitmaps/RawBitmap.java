@@ -98,7 +98,7 @@ public final class RawBitmap {
         if (BookType.DJVU.is(AppSP.get().lastBookPath)) {
             return;
         }
-        if (!(MagicHelper.isNeedMagic() && AppState.get().isCustomizeBgAndColors)) {
+        if (!(MagicHelper.isNeedMagic() && (AppState.get().isCustomizeBgAndColors || shiroikuma.doksho.DokshoNight.active()))) {
             if (!BookCSS.get().isTextFormat()) {
                 nativeInvert(pixels, width, height);
             }
