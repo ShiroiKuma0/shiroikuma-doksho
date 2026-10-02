@@ -5,7 +5,8 @@
 # Upstream's Builder/link_to_mupdf_<ver>.sh does the same for four ABIs, reads its NDK from the
 # global ~/.gradle/gradle.properties and needs a host `make release` (X/GL dev libraries). This
 # wrapper keeps upstream's recipe but:
-#   - takes the MuPDF version from Builder/all-release.sh (the one upstream ships with),
+#   - takes the MuPDF version upstream releases on (newest Builder/all-release-<ver>.sh with a
+#     jni/Android-<ver>.mk; older trees: the literal link script in all-release.sh),
 #   - replays upstream's own list of patched MuPDF sources, parsed out of that link script, so
 #     a new upstream version brings its new list in by itself,
 #   - runs only `make generate` on the host (fonts as C sources), and ndk-build for arm64-v8a only,
@@ -13,15 +14,24 @@
 #
 # Usage: shiroikuma/build-mupdf.sh [clean]
 # Env:   NDK=<ndk dir>   (default: newest under ~/android-sdk/ndk)
+#        MUPDF=<ver>     (default: as above, e.g. MUPDF=1.23.7 for upstream's second release)
 # ---------------------------------------------------------------------------------------------
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BUILDER="$ROOT/Builder"
 
-VERSION_TAG="$(sed -nE 's#^\./link_to_mupdf_([0-9.]+)\.sh.*#\1#p' "$BUILDER/all-release.sh" | head -1)"
+# The MuPDF upstream releases on: since 9.6.39 all-release.sh takes it as an argument and each
+# release has a wrapper all-release-<ver>.sh, so the newest wrapper with a jni makefile wins.
+# Older trees name it literally in all-release.sh. MUPDF=<ver> overrides both.
+VERSION_TAG="${MUPDF:-}"
+if [ -z "$VERSION_TAG" ]; then
+  VERSION_TAG="$(ls "$BUILDER" | sed -nE 's#^all-release-([0-9.]+)\.sh$#\1#p' | sort -V \
+    | while read -r v; do [ -f "$BUILDER/jni/Android-$v.mk" ] && echo "$v"; done | tail -1)"
+fi
+[ -n "$VERSION_TAG" ] || VERSION_TAG="$(sed -nE 's#^\./link_to_mupdf_([0-9.]+)\.sh.*#\1#p' "$BUILDER/all-release.sh" | head -1)"
 LINK_SCRIPT="$BUILDER/link_to_mupdf_$VERSION_TAG.sh"
-[ -n "$VERSION_TAG" ] && [ -f "$LINK_SCRIPT" ] || { echo "cannot find the MuPDF version in Builder/all-release.sh"; exit 1; }
+[ -n "$VERSION_TAG" ] && [ -f "$LINK_SCRIPT" ] || { echo "cannot find the MuPDF version under Builder/"; exit 1; }
 
 NDK="${NDK:-$(ls -d "$HOME"/android-sdk/ndk/* | sort -V | tail -1)}"
 [ -x "$NDK/ndk-build" ] || { echo "no ndk-build under $NDK"; exit 1; }
