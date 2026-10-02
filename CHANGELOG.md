@@ -6,6 +6,22 @@
 Releases of [白い熊 読書](https://github.com/ShiroiKuma0/shiroikuma-doksho), each built on a Librera
 Reader release. Librera Reader's own changelog follows unchanged below.
 
+## 白い熊 読書 9.6.39+001 — 2026-10-02
+
+Rebased onto **Librera Reader 9.6.39** (upstream tag `9.6.39`, released 2026-09-30 as "9.6.40"). Every 白い熊 読書 feature of 9.6.25+005 carried over unchanged.
+
+### Fork
+- Native library rebuilt on **MuPDF 1.28.5**.
+- `shiroikuma/build-mupdf.sh` follows upstream's new one-release-per-MuPDF scripts (newest `Builder/all-release-<ver>.sh`; `MUPDF=<ver>` overrides).
+
+### Upstream in this base (not in upstream's CHANGELOG.md yet)
+- **9.6.39** (2026-09-30): MuPDF 1.28.4 → 1.28.5 (rendering and parsing fixes for PDF, EPUB, images, CBZ); small fixes.
+- **Full publication date**: books keep the whole published date (not only the year), shown in the file-info sheet; *Publication date* sorting now orders by full date. Existing libraries are migrated on first start.
+- **Current sort marked** in the Library, Browse and Favourites sort menus.
+- **Library refresh button removed** from the library bar; rebuilding is done by *Update* in the Preferences folder panel (now with a refresh icon).
+- **Pull to start sync** moved onto the Preferences page; pull-to-refresh is off while the Preferences tab is shown.
+- Sardinian translation updated; release tooling (one release per MuPDF version).
+
 ## 白い熊 読書 9.6.25+005 — 2026-09-26
 
 The first release of 白い熊 読書 — built on **Librera Reader 9.6.25** (upstream tag `9.6.25`, 2026-09-19).
