@@ -56,13 +56,14 @@ Run every build, git and keystore command with `dangerouslyDisableSandbox: true`
 
 1. **Native library present?** `ls app/src/main/jniLibs/arm64-v8a/libMuPDF.so`. It is gitignored,
    so a fresh clone, a `git clean`, or an upstream sync that touched `Builder/jni/` or moved the MuPDF
-   version (`Builder/all-release.sh`) needs a rebuild:
+   version (a new `Builder/all-release-<ver>.sh`) needs a rebuild:
 
    ```bash
    shiroikuma/build-mupdf.sh            # add `clean` to start MuPDF over from a pristine checkout
    ```
 
-   - Clones MuPDF (the version upstream's `all-release.sh` links) into `Builder/mupdf-<ver>/`
+   - Clones MuPDF — the newest `Builder/all-release-<ver>.sh` that has a `jni/Android-<ver>.mk`
+     (since 9.6.39 upstream ships one release per MuPDF; `MUPDF=<ver>` overrides) — into `Builder/mupdf-<ver>/`
      (gitignored), replays upstream's patched MuPDF sources (parsed from
      `Builder/link_to_mupdf_<ver>.sh`), runs `make generate HAVE_OBJCOPY=no`, `ndk-build` for arm64.
    - `HAVE_OBJCOPY=no` is load-bearing: without it, on Linux, `generate` skips the font `.c`
