@@ -12,7 +12,7 @@ black-yellow skin, category Export / Import, and headless backup automation — 
 
 Installs **side-by-side** with Librera, Librera PRO and Librera F-Droid (app id `shiroikuma.doksho`).
 
-**📥 Latest release: [`9.6.25+005`](https://github.com/ShiroiKuma0/shiroikuma-doksho/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-doksho/releases)
+**📥 Latest release: [`9.6.39+001`](https://github.com/ShiroiKuma0/shiroikuma-doksho/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-doksho/releases)
 
 </div>
 
