@@ -6,6 +6,14 @@
 Releases of [白い熊 読書](https://github.com/ShiroiKuma0/shiroikuma-doksho), each built on a Librera
 Reader release. Librera Reader's own changelog follows unchanged below.
 
+## 白い熊 読書 9.6.39+002 — 2026-10-05
+
+Built on **Librera Reader 9.6.39** (upstream tag `9.6.39`).
+
+### Fixes & behaviour
+- **All files access asked for on every open.** Whenever the app comes to the foreground without it, Android's *All files access* page for 白い熊 読書 opens; coming back from that page (granted or not) does not ask again until the next open.
+- **Books sent from a file manager open.** Without that access a PDF in shared storage (e.g. `/sdcard/tmp`) is visible but unreadable, and opening it from another app ended in *An unexpected error occurred*. A book handed over by another app now waits for the access answer before it is resolved, and opens once access is granted.
+
 ## 白い熊 読書 9.6.39+001 — 2026-10-02
 
 Rebased onto **Librera Reader 9.6.39** (upstream tag `9.6.39`, released 2026-09-30 as "9.6.40"). Every 白い熊 読書 feature of 9.6.25+005 carried over unchanged.
