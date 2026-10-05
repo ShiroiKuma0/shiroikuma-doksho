@@ -12,7 +12,7 @@ black-yellow skin, category Export / Import, and headless backup automation — 
 
 Installs **side-by-side** with Librera, Librera PRO and Librera F-Droid (app id `shiroikuma.doksho`).
 
-**📥 Latest release: [`9.6.39+001`](https://github.com/ShiroiKuma0/shiroikuma-doksho/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-doksho/releases)
+**📥 Latest release: [`9.6.39+002`](https://github.com/ShiroiKuma0/shiroikuma-doksho/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-doksho/releases)
 
 </div>
 
@@ -56,7 +56,8 @@ recent, favourites, tags, playlists) — pick the categories, restore just those
 
 No Google services, ads or analytics; CBR comics still open. Settings, profiles, caches and
 backups live in the app's own directory — nothing is written to `/sdcard/Librera` or
-`Download/Librera`. Full speed (no `vmSafeMode`), arm64.
+`Download/Librera`. It asks for *All files access* on every open until it has
+it, so any book on the phone — including ones handed over by a file manager — opens. Full speed (no `vmSafeMode`), arm64.
 
 ---
 
