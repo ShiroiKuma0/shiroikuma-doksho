@@ -63,6 +63,7 @@ public class LibreraApp extends Application {
         AppProfile.initDataDir(context);
         if (AppsConfig.IS_DOKSHO) {
             shiroikuma.doksho.DokshoSkin.register(this); // shiroikuma-doksho: the app-wide skin
+            shiroikuma.doksho.DokshoStorage.register(this); // shiroikuma-doksho: All files access on every open
         }
 
         // The DjVu render service's process draws pages for another app and nothing else:

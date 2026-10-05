@@ -3,6 +3,7 @@ package com.foobnix;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
@@ -20,9 +21,12 @@ import com.foobnix.model.AppProfile;
 import com.foobnix.model.AppSP;
 import com.foobnix.model.AppState;
 import com.foobnix.pdf.info.Android6;
+import com.foobnix.pdf.info.AppsConfig;
 import com.foobnix.pdf.info.ExtUtils;
 import com.foobnix.pdf.info.R;
 import com.foobnix.ui2.MyContextWrapper;
+
+import shiroikuma.doksho.DokshoStorage;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -30,6 +34,8 @@ import java.io.InputStream;
 
 public class OpenerActivity extends Activity {
     public static String TAG = "OpenerActivity";
+
+    private boolean waitingForAccess;
 
     public static String findFileInDownloads(Context context, String name, String id) {
         try {
@@ -70,6 +76,24 @@ public class OpenerActivity extends Activity {
 
         super.onCreate(savedInstanceState);
 
+        // shiroikuma-doksho: ask for All files access first, open the file on the way back
+        if (AppsConfig.IS_DOKSHO && savedInstanceState == null && DokshoStorage.request(this, true)) {
+            waitingForAccess = true;
+            return;
+        }
+        openIntent();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == DokshoStorage.REQUEST_CODE && waitingForAccess) {
+            waitingForAccess = false;
+            openIntent();
+        }
+    }
+
+    private void openIntent() {
 
 //        if (!Android6.canWrite(this)) {
 //            Android6.checkPermissions(this, true);
@@ -268,12 +292,14 @@ public class OpenerActivity extends Activity {
     @Override
     protected void onPause() {
         super.onPause();
+        if (waitingForAccess) return;
         finish();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
+        if (waitingForAccess) return;
         finish();
     }
 }
