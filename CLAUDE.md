@@ -89,6 +89,11 @@ Keep it a **small, legible layer** so rebases stay cheap:
     e-mail and PRO rows hidden, LibreraX reading mode dropped; `pdf/info/Urls.java` — rate → our GitHub;
     `pdf/info/widget/ShareDialog.java` — LibreraX entry hidden; `pdf/info/view/confline/ConfLineView.java`
     — null options skipped.
+  - `LibreraApp.java` (`DokshoStorage.register`), `OpenerActivity.java` — All files access asked
+    for on every open (`shiroikuma/doksho/DokshoStorage.java`): whenever the app comes to the
+    foreground without it, the system's All files access page opens (coming back from it is not a
+    new open); a book sent by another app waits for that answer before it is resolved — without the
+    access a PDF in shared storage is visible but unreadable and the opener gave up (白い熊 2026-10-05).
   - `README.md` — ours (upstream edits theirs every release: on a rebase conflict keep ours).
   - `.gitignore` — our block at the end.
 
