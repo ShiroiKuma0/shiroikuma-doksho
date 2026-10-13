@@ -65,6 +65,10 @@ public final class DokshoUi {
     public static final String C_NIGHT_BG = "c_night_bg";
     public static final String NIGHT_STRENGTH = "night_strength"; // percent, 0 = Librera's own
 
+    /** Reading (DokshoPaging): the colour around the page, and book mode's edge scrolling. */
+    public static final String C_PAGE_SURROUND = "c_page_surround";
+    public static final String EDGE_PAGING = "edge_paging";
+
     /** Colour-picker memory: the last colours chosen, newest first, comma-separated ARGB ints. */
     public static final String RECENT_COLORS = "recent_colors";
     public static final int MAX_RECENT = 8;
@@ -140,6 +144,9 @@ public final class DokshoUi {
         ALL.add(new Setting(C_NIGHT_TEXT, YELLOW));
         ALL.add(new Setting(C_NIGHT_BG, BLACK));
         ALL.add(new Setting(NIGHT_STRENGTH, 100));
+
+        ALL.add(new Setting(C_PAGE_SURROUND, BLACK));
+        ALL.add(new Setting(EDGE_PAGING, true));
     }
 
     private static SharedPreferences sp;

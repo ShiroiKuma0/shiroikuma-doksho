@@ -133,6 +133,13 @@ All in `app/src/main/java/shiroikuma/doksho/` (fork-only files):
   `getTextColor`/`getBgColor`), `MuPdfPage.render` (render un-inverted, then recolour),
   `RawBitmap.invert` (no second inversion), `ImageExtractor.proccessOtherPage` (covers exempt via
   `coverBegin/End`). Page section: Reading → Night mode.
+- **`DokshoPaging`** — book mode as 白い熊 reads a PDF: the page never leaves the screen (pans
+  clamped to its edges, flings too); zoomed wider than the screen, a sideways swipe pans instead of
+  flipping (`CustomViewPager.onInterceptTouchEvent` yields); a vertical pull past the top / bottom edge
+  turns the page without the slide, opening at the new page's top / bottom. Unlocked pages in the
+  horizontal pager only; switch `EDGE_PAGING`. The colour around the page (`C_PAGE_SURROUND`, default
+  black) replaces Librera's light-grey foreground in `PageImaveView.onDraw`, `EventDraw.process`
+  (scroll mode) and the pager background (`HorizontalViewActivity`). Page section: Reading → Page.
 - **`ExportImportPanel`** + **`backup/ShiroikumaExport`** — the family Export / Import (ported from
   termux-api): SAF export directory (device-local `doksho_eximport`), ZIP
   `shiroikuma-doksho_<yyyy-MM-dd_HH-mm-ss>.zip` written as `.part` and renamed, categories **ui**

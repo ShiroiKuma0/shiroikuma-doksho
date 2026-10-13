@@ -69,6 +69,10 @@
 
     <!-- reading -->
     <string name="doksho_ui_sec_reading" translatable="false">Reading</string>
+    <string name="doksho_ui_sub_page" translatable="false">Page</string>
+    <string name="doksho_ui_c_page_surround" translatable="false">Around the page</string>
+    <string name="doksho_ui_edge_paging" translatable="false">Book mode: scroll to the page\'s edges</string>
+    <string name="doksho_ui_edge_paging_desc" translatable="false">The page never leaves the screen. Zoomed in, a sideways swipe pans the page instead of flipping; up / down scrolls it, and pulling on past its top or bottom edge turns to the previous / next page.</string>
     <string name="doksho_ui_sub_night" translatable="false">Night mode</string>
     <string name="doksho_ui_c_night_text" translatable="false">Night ink (what black print becomes)</string>
     <string name="doksho_ui_c_night_bg" translatable="false">Night paper (what white paper becomes)</string>

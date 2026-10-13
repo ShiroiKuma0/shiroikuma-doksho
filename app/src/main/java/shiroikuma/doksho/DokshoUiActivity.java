@@ -386,6 +386,11 @@ public class DokshoUiActivity extends Activity implements ExportImportPanel.Host
 
     private void sectionReading() {
         heading(getString(R.string.doksho_ui_sec_reading), false);
+        sub(getString(R.string.doksho_ui_sub_page));
+        colorRow(R.string.doksho_ui_c_page_surround, DokshoUi.C_PAGE_SURROUND, false);
+        Switch edge = toggle(DokshoUi.b(DokshoUi.EDGE_PAGING), on -> DokshoUi.set(DokshoUi.EDGE_PAGING, on));
+        itemRow(IND_L2, getString(R.string.doksho_ui_edge_paging), getString(R.string.doksho_ui_edge_paging_desc), edge,
+                v -> edge.toggle());
         sub(getString(R.string.doksho_ui_sub_night));
         colorRow(R.string.doksho_ui_c_night_text, DokshoUi.C_NIGHT_TEXT, false);
         colorRow(R.string.doksho_ui_c_night_bg, DokshoUi.C_NIGHT_BG, false);
