@@ -6,6 +6,16 @@
 Releases of [白い熊 読書](https://github.com/ShiroiKuma0/shiroikuma-doksho), each built on a Librera
 Reader release. Librera Reader's own changelog follows unchanged below.
 
+## 白い熊 読書 9.6.39+003 — 2026-10-13
+
+Built on **Librera Reader 9.6.39** (upstream tag `9.6.39`).
+
+### Reading
+- **Black around the page.** The area around the page is no longer Librera's light grey but a colour of its own — *Around the page* on the 白い熊 読書 UI page (Reading → Page), default `#000000` — in book mode, scroll mode and behind the page pager.
+- **Book mode scrolls to the page's edges.** A vertical swipe scrolls the page; once its top or bottom edge is reached, pulling on (about 56 dp) turns to the previous / next page, which opens at its bottom / top — straight to it, without the sideways slide. On an unzoomed page a vertical swipe turns the page at once. A fling stops at the edge and never turns the page by itself.
+- **Zoomed in, sideways swipes pan the page.** When the page is wider than the screen, left / right moves across it and stops at its edges instead of flipping to the next page. The page's edges never leave the screen — panning, flings and pinch-zoom are all held inside them. An unzoomed page still flips sideways as before.
+- Switch *Book mode: scroll to the page's edges* (on by default). Locked pages (text formats, the lock button) and scroll mode keep Librera's own gestures.
+
 ## 白い熊 読書 9.6.39+002 — 2026-10-05
 
 Built on **Librera Reader 9.6.39** (upstream tag `9.6.39`).

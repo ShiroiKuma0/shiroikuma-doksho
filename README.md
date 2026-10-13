@@ -12,7 +12,7 @@ black-yellow skin, category Export / Import, and headless backup automation — 
 
 Installs **side-by-side** with Librera, Librera PRO and Librera F-Droid (app id `shiroikuma.doksho`).
 
-**📥 Latest release: [`9.6.39+002`](https://github.com/ShiroiKuma0/shiroikuma-doksho/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-doksho/releases)
+**📥 Latest release: [`9.6.39+003`](https://github.com/ShiroiKuma0/shiroikuma-doksho/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-doksho/releases)
 
 </div>
 
@@ -24,6 +24,14 @@ The reader's night mode is a duotone: every pixel of a PDF or DjVu page is place
 between night paper and night ink — black print becomes full yellow, white paper full black, and
 every grey a smooth step between. A black-and-white book reads as pure yellow on black; a strength
 slider lets colour pictures keep some of their own hues.
+
+---
+
+## 📖 Book mode that scrolls like a page should
+
+Black around the page instead of Librera's light grey. Swipe up or down and the page scrolls; reach
+its top or bottom edge, pull on, and the previous or next page opens at its bottom or top. Zoomed in,
+a sideways swipe pans across the page — it never flips — and the page's edges never leave the screen.
 
 ---
 
