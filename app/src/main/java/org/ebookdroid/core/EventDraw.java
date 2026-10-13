@@ -85,7 +85,7 @@ public class EventDraw implements IEvent {
 //            } else {
 //                viewState.paint.backgroundFillPaint.setColor(MagicHelper.ligtherColor(MagicHelper.getBgColor()));
 //            }
-            viewState.paint.backgroundFillPaint.setColor(MagicHelper.getForegroundColor());
+            viewState.paint.backgroundFillPaint.setColor(shiroikuma.doksho.DokshoPaging.surround());
             if (canvas != null) {
                 canvas.drawRect(canvas.getClipBounds(), viewState.paint.backgroundFillPaint);
             }

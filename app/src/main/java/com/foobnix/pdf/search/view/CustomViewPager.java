@@ -7,6 +7,8 @@ import android.view.MotionEvent;
 import com.foobnix.model.AppSP;
 import com.foobnix.model.AppState;
 
+import shiroikuma.doksho.DokshoPaging;
+
 public class CustomViewPager extends RtlViewPager {
 
     public CustomViewPager(Context context, AttributeSet attrs) {
@@ -27,6 +29,9 @@ public class CustomViewPager extends RtlViewPager {
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
+        if (DokshoPaging.blocksPager()) {
+            return false; // 白い熊 読書: a zoomed-in page pans sideways instead of flipping
+        }
         if (event.getPointerCount() == 1 && AppState.get().selectedText == null) {
             try {
                 return super.onInterceptTouchEvent(event);

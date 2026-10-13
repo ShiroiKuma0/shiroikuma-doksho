@@ -49,6 +49,8 @@ import org.ebookdroid.droids.mupdf.codec.TextWord;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
+import shiroikuma.doksho.DokshoPaging;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -84,16 +86,29 @@ public class PageImaveView extends View {
             if (scroller.isFinished()) {
                 return;
             }
-            final boolean more = scroller.computeScrollOffset();
+            boolean more = scroller.computeScrollOffset();
             final int xx = scroller.getCurrX();
             final int yy = scroller.getCurrY();
 
             final float dx = xx - x;
             final float dy = yy - y;
 
+            float[] before = new float[9];
+            imageMatrix().getValues(before);
             imageMatrix().postTranslate(dx, dy);
             y = yy;
             x = xx;
+            // 白い熊 読書: a fling stops at the page's edges.
+            if (DokshoPaging.on()) {
+                DokshoPaging.clamp(imageMatrix(), getWidth(), getHeight(), drawableWidth, drawableHeight);
+                float[] after = new float[9];
+                imageMatrix().getValues(after);
+                if (more && (dx != 0 || dy != 0) && after[Matrix.MTRANS_X] == before[Matrix.MTRANS_X]
+                        && after[Matrix.MTRANS_Y] == before[Matrix.MTRANS_Y]) {
+                    scroller.forceFinished(true);
+                    more = false;
+                }
+            }
             invalidate();
 
             if (more) {
@@ -106,6 +121,8 @@ public class PageImaveView extends View {
     private boolean isLognPress = false;
     private boolean isIgronerClick = false;
     private int isMoveNextPrev = 0;
+    /** 白い熊 読書: how far this vertical drag has pulled past the page's top / bottom edge. */
+    private float edgePull = 0;
     private int pageNumber;
 
     public PageImaveView(final Context context, final AttributeSet attrs) {
@@ -395,7 +412,10 @@ public class PageImaveView extends View {
 //            } else {
 //                canvas.drawColor(MagicHelper.ligtherColor(MagicHelper.getBgColor()));
 //            }
-            canvas.drawColor(MagicHelper.getForegroundColor());
+            canvas.drawColor(DokshoPaging.surround());
+            if (pageNumber == PageImageState.currentPage) {
+                DokshoPaging.noteWide(imageMatrix(), getWidth(), drawableWidth);
+            }
 
             final int saveCount = canvas.getSaveCount();
             canvas.save();
@@ -764,6 +784,34 @@ public class PageImaveView extends View {
         return txt;
     }
 
+    /**
+     * 白い熊 読書: a vertical pull past the page's edge turns the page — straight to it, no sideways
+     * slide, opening at its top (next) or bottom (previous). False at the first / last page.
+     */
+    private boolean turnByPull(int dir) {
+        android.view.ViewParent p = getParent();
+        while (p != null && !(p instanceof androidx.viewpager.widget.ViewPager)) {
+            p = p.getParent();
+        }
+        if (p == null) {
+            return false;
+        }
+        androidx.viewpager.widget.ViewPager pager = (androidx.viewpager.widget.ViewPager) p;
+        if (pager.getAdapter() == null) {
+            return false;
+        }
+        int target = pager.getCurrentItem() + dir;
+        if (target < 0 || target >= pager.getAdapter().getCount()) {
+            return false;
+        }
+        if (!PageImageState.get().isAutoFit) {
+            DokshoPaging.alignForTurn(imageMatrix(), dir, getHeight(), drawableHeight);
+        }
+        pager.setCurrentItem(target, false);
+        invalidateAndMsg();
+        return true;
+    }
+
     class ImageSimpleGestureListener extends SimpleTouchOnGestureListener {
 
         @Override
@@ -914,6 +962,7 @@ public class PageImaveView extends View {
                     isLognPress = false;
                 }
                 isMoveNextPrev = 0;
+                edgePull = 0;
                 EventBus.getDefault().post(new MessagePageXY(MessagePageXY.TYPE_HIDE));
             } else if (action == MotionEvent.ACTION_MOVE) {
                 if (event.getPointerCount() == 1) {
@@ -943,6 +992,13 @@ public class PageImaveView extends View {
                                 }
                             }
 
+                        } else if (DokshoPaging.on()) {
+                            // 白い熊 読書: vertical drags scroll the page; sideways ones too when it is wider than the screen.
+                            if (!isReadyForMove && Math.abs(dy) + Math.abs(dx) > Dips.DP_10
+                                    && (Math.abs(dy) > Math.abs(dx) || DokshoPaging.isWide(imageMatrix(), getWidth(), drawableWidth))) {
+                                isReadyForMove = true;
+                                isIgronerClick = true;
+                            }
                         } else {
                             if (AppState.get().rotateViewPager == 0) {
                                 if (Math.abs(dy) > Math.abs(dx) && (Math.abs(dy) + Math.abs(dx) > Dips.DP_10)) {
@@ -963,7 +1019,20 @@ public class PageImaveView extends View {
                             isMoveNextPrev = 0;
                         }
 
-                        if (!isBrightness && isReadyForMove && !AppSP.get().isLocked) {
+                        if (!isBrightness && isReadyForMove && DokshoPaging.on()) {
+                            float[] moved = DokshoPaging.pan(imageMatrix(), dx, dy, getWidth(), getHeight(), drawableWidth, drawableHeight);
+                            if (moved[2] != 0) {
+                                edgePull = Math.signum(moved[2]) == Math.signum(edgePull) ? edgePull + moved[2] : moved[2];
+                            } else if (moved[1] != 0) {
+                                edgePull = 0;
+                            }
+                            if (moved[0] != 0 || moved[1] != 0) {
+                                PageImageState.get().isAutoFit = false;
+                                invalidateAndMsg();
+                            }
+                            x = event.getX();
+                            y = event.getY();
+                        } else if (!isBrightness && isReadyForMove && !AppSP.get().isLocked) {
 
                             imageMatrix().postTranslate(dx, dy);
 
@@ -1034,6 +1103,9 @@ public class PageImaveView extends View {
                 }
                 cx = 0;
                 distance = 0;
+                if (DokshoPaging.on() && DokshoPaging.clamp(imageMatrix(), getWidth(), getHeight(), drawableWidth, drawableHeight)) {
+                    invalidateAndMsg();
+                }
 
             } else if (action == MotionEvent.ACTION_UP) {
                 brightnessHelper.onActionUp();
@@ -1043,6 +1115,15 @@ public class PageImaveView extends View {
                 isReadyForMove = false;
                 cx = 0;
                 cy = 0;
+
+                if (DokshoPaging.on()) {
+                    if (Math.abs(edgePull) > Dips.dpToPx((int) DokshoPaging.PULL_DP) && turnByPull(edgePull < 0 ? 1 : -1)) {
+                        scroller.forceFinished(true);
+                    } else if (scroller.isFinished() && DokshoPaging.clamp(imageMatrix(), getWidth(), getHeight(), drawableWidth, drawableHeight)) {
+                        invalidateAndMsg();
+                    }
+                }
+                edgePull = 0;
 
                 if (isLognPress) {
                     String selectText = selectText(event.getX(), event.getY(), xInit, yInit);

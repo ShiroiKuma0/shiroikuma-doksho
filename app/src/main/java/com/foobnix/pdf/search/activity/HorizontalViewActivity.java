@@ -311,7 +311,7 @@ public class HorizontalViewActivity extends AdsFragmentActivity {
         viewPager = (VerticalViewPager) findViewById(R.id.pager2);
         viewPager.setAccessibilityDelegate(new View.AccessibilityDelegate());
 
-        viewPager.setBackgroundColor(MagicHelper.getBgColor());
+        viewPager.setBackgroundColor(shiroikuma.doksho.DokshoPaging.surround());
 
         parentParent = findViewById(R.id.parentParent);
         pannelBookTitle = findViewById(R.id.pannelBookTitle);
