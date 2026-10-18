@@ -2806,6 +2806,11 @@ public class PrefFragment2 extends UIFragment {
         profileLetter.setOnLongClickListener(onDefaultProfile);
 
         if (AppsConfig.IS_DOKSHO) {
+            // shiroikuma-doksho: 白い熊 読書 UI as the first row of the Preferences page / sidebar
+            DokshoUiActivity.addLink((ViewGroup) ((ViewGroup) inflate.findViewById(R.id.scroll)).getChildAt(0));
+        }
+
+        if (AppsConfig.IS_DOKSHO) {
             // shiroikuma-doksho: a long-press on the cog opens 白い熊 読書 UI (a tap still opens profiles)
             inflate.findViewById(R.id.onProfileEdit).setOnLongClickListener(v -> {
                 DokshoUiActivity.open(getActivity());

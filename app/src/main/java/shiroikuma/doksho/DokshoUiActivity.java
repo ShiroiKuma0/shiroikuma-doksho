@@ -79,6 +79,26 @@ public class DokshoUiActivity extends Activity implements ExportImportPanel.Host
         context.startActivity(i);
     }
 
+    /** The "白い熊 読書 UI" link as the first row of {@code parent} (the Preferences page / sidebar). */
+    public static void addLink(@Nullable ViewGroup parent) {
+        if (parent == null) return;
+        Context c = parent.getContext();
+        float d = c.getResources().getDisplayMetrics().density;
+        TextView link = new TextView(c);
+        link.setText(R.string.doksho_ui_link);
+        link.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+        link.setTypeface(link.getTypeface(), android.graphics.Typeface.BOLD);
+        link.setTextColor(DokshoUi.i(DokshoUi.C_ACCENT));
+        link.setPadding((int) (12 * d), (int) (12 * d), (int) (12 * d), (int) (12 * d));
+        TypedValue tv = new TypedValue();
+        if (c.getTheme().resolveAttribute(android.R.attr.selectableItemBackground, tv, true)) {
+            link.setBackgroundResource(tv.resourceId);
+        }
+        link.setOnClickListener(v -> open(v.getContext()));
+        parent.addView(link, 0, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+    }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -391,6 +411,9 @@ public class DokshoUiActivity extends Activity implements ExportImportPanel.Host
         Switch edge = toggle(DokshoUi.b(DokshoUi.EDGE_PAGING), on -> DokshoUi.set(DokshoUi.EDGE_PAGING, on));
         itemRow(IND_L2, getString(R.string.doksho_ui_edge_paging), getString(R.string.doksho_ui_edge_paging_desc), edge,
                 v -> edge.toggle());
+        Switch scrollEdges = toggle(DokshoUi.b(DokshoUi.SCROLL_EDGES), on -> DokshoUi.set(DokshoUi.SCROLL_EDGES, on));
+        itemRow(IND_L2, getString(R.string.doksho_ui_scroll_edges), getString(R.string.doksho_ui_scroll_edges_desc), scrollEdges,
+                v -> scrollEdges.toggle());
         sub(getString(R.string.doksho_ui_sub_night));
         colorRow(R.string.doksho_ui_c_night_text, DokshoUi.C_NIGHT_TEXT, false);
         colorRow(R.string.doksho_ui_c_night_bg, DokshoUi.C_NIGHT_BG, false);

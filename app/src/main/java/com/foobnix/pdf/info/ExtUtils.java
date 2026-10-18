@@ -997,6 +997,9 @@ public class ExtUtils {
             return;
         }
 
+        if (AppsConfig.IS_DOKSHO) {
+            shiroikuma.doksho.DokshoPaging.filmOnce(); // shiroikuma-doksho: Scroll mode, once, as the default
+        }
         if (AppSP.get().readingMode == AppState.READING_MODE_BOOK) {
             openHorizontalView(c, uri, percent, playlist, bookmarkText, bookmarkPageText);
             return;

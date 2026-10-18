@@ -68,6 +68,10 @@ public final class DokshoUi {
     /** Reading (DokshoPaging): the colour around the page, and book mode's edge scrolling. */
     public static final String C_PAGE_SURROUND = "c_page_surround";
     public static final String EDGE_PAGING = "edge_paging";
+    /** Scroll mode (DokshoPaging.scrollLimitsX): sideways panning stops at the page's edges. */
+    public static final String SCROLL_EDGES = "scroll_edges";
+    /** Set once books have been switched to Scroll mode (the film) as the fork's default. */
+    public static final String FILM_DEFAULT_DONE = "film_default_done";
 
     /** Colour-picker memory: the last colours chosen, newest first, comma-separated ARGB ints. */
     public static final String RECENT_COLORS = "recent_colors";
@@ -147,6 +151,8 @@ public final class DokshoUi {
 
         ALL.add(new Setting(C_PAGE_SURROUND, BLACK));
         ALL.add(new Setting(EDGE_PAGING, true));
+        ALL.add(new Setting(SCROLL_EDGES, true));
+        ALL.add(new Setting(FILM_DEFAULT_DONE, false));
     }
 
     private static SharedPreferences sp;
