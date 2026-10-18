@@ -12,7 +12,7 @@ black-yellow skin, category Export / Import, and headless backup automation — 
 
 Installs **side-by-side** with Librera, Librera PRO and Librera F-Droid (app id `shiroikuma.doksho`).
 
-**📥 Latest release: [`9.6.39+003`](https://github.com/ShiroiKuma0/shiroikuma-doksho/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-doksho/releases)
+**📥 Latest release: [`9.6.39+005`](https://github.com/ShiroiKuma0/shiroikuma-doksho/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-doksho/releases)
 
 </div>
 
@@ -27,11 +27,13 @@ slider lets colour pictures keep some of their own hues.
 
 ---
 
-## 📖 Book mode that scrolls like a page should
+## 🎞️ Pages that roll by like film
 
-Black around the page instead of Librera's light grey. Swipe up or down and the page scrolls; reach
-its top or bottom edge, pull on, and the previous or next page opens at its bottom or top. Zoomed in,
-a sideways swipe pans across the page — it never flips — and the page's edges never leave the screen.
+PDFs open in Vertical (scroll) mode: the page slides up while the next one rises from below, and a
+long flick rolls through page after page without stopping. Black around and between the pages instead
+of Librera's light grey. Zoomed in, a sideways swipe pans only as far as the page's own edges. Prefer
+Paged? There, up / down scrolls to the page's edge and pulling on turns the page, and a zoomed page
+pans sideways instead of flipping.
 
 ---
 

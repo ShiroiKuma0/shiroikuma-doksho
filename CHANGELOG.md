@@ -6,6 +6,17 @@
 Releases of [白い熊 読書](https://github.com/ShiroiKuma0/shiroikuma-doksho), each built on a Librera
 Reader release. Librera Reader's own changelog follows unchanged below.
 
+## 白い熊 読書 9.6.39+005 — 2026-10-18
+
+Built on **Librera Reader 9.6.39** (upstream tag `9.6.39`).
+
+### Reading
+- **Pages roll by like film.** Books now open in **Vertical** (scroll) mode instead of Librera's default **Paged** mode: the current page slides up while the next one rises from below, and a long flick rolls through several pages continuously. The switch happens once, the first time a book opens after the update; tapping the mode name in the reader's top bar still swaps between Vertical and Paged, and a switch back to Paged is kept.
+- **Vertical mode stops at the page's edges.** Zoomed in, a sideways swipe pans only as far as the page's left / right edge — Librera let it run almost a screen past. Zoomed out narrower than the screen, the page stays centred. Switch *Scroll mode: stop at the page's edges* (on by default, Reading → Page).
+
+### UI
+- **白い熊 読書 UI in the sidebar.** The fork's settings page is now the first row of the sidebar the main screen's hamburger opens, and of the Preferences page — a tap opens it.
+
 ## 白い熊 読書 9.6.39+003 — 2026-10-13
 
 Built on **Librera Reader 9.6.39** (upstream tag `9.6.39`).
