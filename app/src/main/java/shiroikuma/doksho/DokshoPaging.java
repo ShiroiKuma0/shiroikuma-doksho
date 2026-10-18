@@ -114,4 +114,29 @@ public final class DokshoPaging {
         float ty = dir > 0 ? 0 : viewH - ph;
         m.postTranslate(0, ty - v[Matrix.MTRANS_Y]);
     }
+
+    /**
+     * Scroll mode (VScrollController): the horizontal scroll range of the page column. Pages span
+     * x = 0 … width × zoom; wider than the view, the view moves between the page's own edges;
+     * narrower, the page stays centred.
+     */
+    public static int[] scrollLimitsX(int width, float zoom) {
+        int over = (int) (width * zoom) - width;
+        if (over >= 0) {
+            return new int[]{0, over};
+        }
+        return new int[]{over / 2, over / 2};
+    }
+
+    /**
+     * Books open in Scroll mode — pages rolling by as one film — rather than Librera's default
+     * Book mode. Done once, the first time a book opens; switching back stays switched back.
+     */
+    public static void filmOnce() {
+        if (DokshoUi.b(DokshoUi.FILM_DEFAULT_DONE)) return;
+        DokshoUi.set(DokshoUi.FILM_DEFAULT_DONE, true);
+        if (AppSP.get().readingMode == AppState.READING_MODE_BOOK) {
+            AppSP.get().readingMode = AppState.READING_MODE_SCROLL;
+        }
+    }
 }

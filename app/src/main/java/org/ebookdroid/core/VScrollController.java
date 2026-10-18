@@ -63,6 +63,12 @@ public class VScrollController extends AbstractScrollController {
 
         int right = (int) (width * zoom) - 120;
         int left = -1 * width + 120;
+        if (shiroikuma.doksho.DokshoUi.b(shiroikuma.doksho.DokshoUi.SCROLL_EDGES)) {
+            // 白い熊 読書: a zoomed-in page pans only as far as its own left / right edges.
+            int[] lr = shiroikuma.doksho.DokshoPaging.scrollLimitsX(width, zoom);
+            left = lr[0];
+            right = lr[1];
+        }
 
         return new Rect(left, -120, right, bottom);
     }

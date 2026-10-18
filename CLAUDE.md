@@ -140,6 +140,11 @@ All in `app/src/main/java/shiroikuma/doksho/` (fork-only files):
   horizontal pager only; switch `EDGE_PAGING`. The colour around the page (`C_PAGE_SURROUND`, default
   black) replaces Librera's light-grey foreground in `PageImaveView.onDraw`, `EventDraw.process`
   (scroll mode) and the pager background (`HorizontalViewActivity`). Page section: Reading → Page.
+  Scroll mode (the film roll 白い熊 wants): `VScrollController.getScrollLimits` holds sideways panning
+  to the page's edges (`scrollLimitsX`, switch `SCROLL_EDGES`); `ExtUtils.showDocumentWithoutDialog`
+  calls `filmOnce()` — books switch from Book to Scroll mode once (`FILM_DEFAULT_DONE`), a later
+  switch back is respected. The UI page link is also the first row of the Preferences page / sidebar
+  (`PrefFragment2` → `DokshoUiActivity.addLink`).
 - **`ExportImportPanel`** + **`backup/ShiroikumaExport`** — the family Export / Import (ported from
   termux-api): SAF export directory (device-local `doksho_eximport`), ZIP
   `shiroikuma-doksho_<yyyy-MM-dd_HH-mm-ss>.zip` written as `.part` and renamed, categories **ui**
