@@ -24,6 +24,7 @@ import com.foobnix.ext.CacheZipUtils;
 import com.foobnix.model.AppBook;
 import com.foobnix.model.AppSP;
 import com.foobnix.model.AppState;
+import com.foobnix.pdf.info.AppsConfig;
 import com.foobnix.pdf.info.ExtUtils;
 import com.foobnix.pdf.info.PageUrl;
 import com.foobnix.pdf.info.R;
@@ -78,6 +79,11 @@ public class VerticalModeController extends DocumentController {
         this.ctr = ctr;
         CoreSettings.getInstance().fullScreen = AppState.get().fullScreenMode == AppState.FULL_SCREEN_FULLSCREEN;
         handler = new Handler(Looper.getMainLooper());
+    }
+
+    /** 白い熊 読書 (shiroikuma.doksho.annot): the view, zoom, pages and decoder the PDF tools work on. */
+    public ViewerActivityController getActivityController() {
+        return ctr;
     }
 
     @Override
@@ -715,6 +721,12 @@ public class VerticalModeController extends DocumentController {
 
 
         if (ctr.getDecodeService().hasAnnotationChanges()) {
+            // 白い熊 読書: Save writes into the original (also behind a copy another app sent), Save as
+            // starts in its directory — upstream saved into Librera's copy in Android/data.
+            if (AppsConfig.IS_DOKSHO && shiroikuma.doksho.annot.SaveOnClose.ask(getActivity(), getCurrentBook(),
+                    ctr.getDecodeService(), () -> ctr.closeActivity(null))) {
+                return;
+            }
             if (AppState.get().isSaveAnnotatationsAutomatically) {
                 final MyProgressDialog progress = MyProgressDialog.show(getActivity(), getActivity().getString(R.string.saving_));
                 progress.setCancelable(false);

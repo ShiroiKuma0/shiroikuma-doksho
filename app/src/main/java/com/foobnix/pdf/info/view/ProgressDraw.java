@@ -68,6 +68,9 @@ public class ProgressDraw extends View {
     }
 
     public void updateColor(int color) {
+        if (com.foobnix.pdf.info.AppsConfig.IS_DOKSHO && shiroikuma.doksho.DokshoUi.skin()) {
+            color = shiroikuma.doksho.DokshoUi.i(shiroikuma.doksho.DokshoUi.C_ACCENT); // shiroikuma-doksho: the skin's accent
+        }
         this.color = ColorUtils.setAlphaComponent(color, ALPHA);
         this.color1 = MagicHelper.alpha(40, MagicHelper.getForegroundColor());
 

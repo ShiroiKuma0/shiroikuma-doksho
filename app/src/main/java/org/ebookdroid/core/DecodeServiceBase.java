@@ -636,6 +636,29 @@ public class DecodeServiceBase implements DecodeService {
         return codecDocument;
     }
 
+    /** 白い熊 読書 (shiroikuma.doksho.annot): runs a PDF edit on the decoder thread. */
+    public void runEdit(final Runnable edit) {
+        executor.addAny(new Task(0) {
+            @Override
+            public void run() {
+                edit.run();
+            }
+        });
+    }
+
+    /** 白い熊 読書: the codec page an edit works on (decoder thread only). */
+    public CodecPage editPage(final int pageIndex) {
+        return getPage(pageIndex);
+    }
+
+    /** 白い熊 読書: after an edit every page re-opens, so its display list carries the change. */
+    public void reopenPages() {
+        for (final CodecPageHolder holder : pages.values()) {
+            holder.recycle(-1, true);
+        }
+        pages.clear();
+    }
+
     @Override
     public void shutdown() {
         try {

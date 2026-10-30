@@ -69,6 +69,24 @@ mkdir -p "$MUPDF_JAVA"
 cp -Rp "$BUILDER/jni" "$MUPDF_JAVA/jni"
 mv "$MUPDF_JAVA/jni/Android-$VERSION_TAG.mk" "$MUPDF_JAVA/jni/Android.mk"
 
+# Our PDF editing layer (shiroikuma/jni/*.c — forms, text boxes, ink, eraser, undo, save) joins the
+# MuPDF module: copied beside upstream's bridge and appended to the module's LOCAL_SRC_FILES (the
+# list ends at upstream's libmupdf_librera_<ver>.c line).
+cp -p "$ROOT"/shiroikuma/jni/*.c "$MUPDF_JAVA/jni/"
+OURS="$(cd "$ROOT/shiroikuma/jni" && ls *.c | tr '\n' ' ')"
+sed -i -E "s#^(\s*libmupdf_librera_[0-9_]+\.c)\s*\$#\1 $OURS#" "$MUPDF_JAVA/jni/Android.mk"
+grep -q "doksho_annot.c" "$MUPDF_JAVA/jni/Android.mk" || { echo "could not add our sources to Android.mk"; exit 1; }
+# It embeds fonts as subsets cut by HarfBuzz's subsetter (MuPDF's own cannot do CID-keyed CFF —
+# the Japanese .otf fonts), which MuPDF ships but does not compile: its sources join the harfbuzz
+# module, and our module gets HarfBuzz's headers.
+HB_SUBSET="$(cd "$MUPDF_ROOT" && ls thirdparty/harfbuzz/src/hb-subset*.cc | grep -v test | sed 's#^#HARFBUZZ_SRC += #')"
+[ -n "$HB_SUBSET" ] || { echo "no hb-subset sources under $MUPDF_ROOT/thirdparty/harfbuzz"; exit 1; }
+MK="$MUPDF_JAVA/jni/MuPDF-$VERSION_TAG.mk"
+awk -v add="$HB_SUBSET" '{ print } /^include \$\(MUPDF_PATH\)\/Makelists/ { print add }' "$MK" > "$MK.tmp" && mv "$MK.tmp" "$MK"
+grep -q "hb-subset-plan.cc" "$MK" || { echo "could not add hb-subset to $MK"; exit 1; }
+sed -i -E 's#^(LOCAL_MODULE := MuPDF)$#\1\nLOCAL_C_INCLUDES += $(MUPDF_ROOT)/thirdparty/harfbuzz/src#' "$MUPDF_JAVA/jni/Android.mk"
+grep -q "thirdparty/harfbuzz/src" "$MUPDF_JAVA/jni/Android.mk" || { echo "could not add HarfBuzz headers to Android.mk"; exit 1; }
+
 (cd "$MUPDF_JAVA" && "$NDK/ndk-build" -j"$(nproc)" \
   NDK_APPLICATION_MK=jni/Application.mk APP_ABI=arm64-v8a APP_PLATFORM=android-24)
 

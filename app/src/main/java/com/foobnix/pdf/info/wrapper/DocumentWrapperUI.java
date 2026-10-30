@@ -1102,7 +1102,17 @@ public class DocumentWrapperUI {
         lirbiLogo.setOnClickListener(onLirbiLogoClick);
 
         editTop2 = (ImageView) a.findViewById(R.id.editTop2);
-        editTop2.setOnClickListener(onShowHideEditPanel);
+        // 白い熊 読書: a tap opens the PDF tools bar (forms, text boxes, pen, eraser); a long-press
+        // keeps upstream's draw panel.
+        editTop2.setOnClickListener(v -> {
+            AppState.get().isEditMode = false;
+            hideShow();
+            shiroikuma.doksho.annot.AnnotTools.toggle(a, dc);
+        });
+        editTop2.setOnLongClickListener(v -> {
+            onShowHideEditPanel.onClick(v);
+            return true;
+        });
 
         goToPage1 = (ImageView) a.findViewById(R.id.goToPage1);
         goToPage1Top = (ImageView) a.findViewById(R.id.goToPage1Top);

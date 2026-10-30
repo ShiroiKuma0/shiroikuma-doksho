@@ -147,6 +147,12 @@ public class OpenerActivity extends Activity {
 
         LOG.d(TAG, "id", id, "name", name, "size", size);
 
+        if (AppsConfig.IS_DOKSHO && !file.isFile()) {
+            // 白い熊 読書: the sender's path extra (書類管理), document ids, the media path, the URI's path
+            File real = shiroikuma.doksho.DokshoOrigin.realFile(this, getIntent());
+            if (real != null) file = real;
+        }
+
         if (!file.isFile()) {
             LOG.d(TAG, "Find file in getLastPathSegment");
             if (id != null) {
@@ -248,6 +254,7 @@ public class OpenerActivity extends Activity {
             return;
         }
         LOG.d(TAG, "Open file", file);
+        if (AppsConfig.IS_DOKSHO) shiroikuma.doksho.DokshoOrigin.opened(this, uri, file); // 白い熊 読書: a copy's source
         ExtUtils.openFile(this, new FileMeta(file.getPath()));
     }
 

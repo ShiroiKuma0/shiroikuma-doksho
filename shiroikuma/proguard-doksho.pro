@@ -2,3 +2,5 @@
 # SkinDrawable subclasses are inflated from XML (<drawable class="...">) — R8 cannot see that use.
 -keep public class shiroikuma.doksho.SkinDrawable { *; }
 -keep public class shiroikuma.doksho.SkinDrawable$* { public <init>(); *; }
+# The PDF tools' natives (shiroikuma/jni/doksho_annot.c) are bound by class and method name.
+-keep class shiroikuma.doksho.annot.DokshoPdf { native <methods>; }
