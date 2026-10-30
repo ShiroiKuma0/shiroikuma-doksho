@@ -6,7 +6,7 @@
 Releases of [白い熊 読書](https://github.com/ShiroiKuma0/shiroikuma-doksho), each built on a Librera
 Reader release. Librera Reader's own changelog follows unchanged below.
 
-## 白い熊 読書 10.0.19+001 — 2026-10-30
+## 白い熊 読書 10.0.19+002 — 2026-10-30
 
 Built on **Librera Reader 10.0.19** (upstream tag `10.0.19`) — every customization of 9.6.39+009
 carried over onto the new upstream line.
@@ -14,6 +14,7 @@ carried over onto the new upstream line.
 ### Fork
 - **MuPDF only.** Upstream 10.0 adds PDFium and foliate-js as alternative engines; 白い熊 読書
   keeps MuPDF for PDFs and e-books, where the PDF tools, the night duotone and the page paging live.
+  PDFium is not even packaged — the APK is 5 MB smaller for it.
 - **CBR through libarchive**, upstream's new comic reader, in place of junrar.
 - **Settings stay in the app's own directory.** Upstream's new syncing of the profile with a
   `Librera` directory, and its merge of `Download/Librera` into the profile, are off.

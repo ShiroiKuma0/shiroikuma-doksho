@@ -13,7 +13,7 @@ black-yellow skin, category Export / Import, and headless backup automation — 
 
 Installs **side-by-side** with Librera, Librera PRO and Librera F-Droid (app id `shiroikuma.doksho`).
 
-**📥 Latest release: [`9.6.39+009`](https://github.com/ShiroiKuma0/shiroikuma-doksho/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-doksho/releases)
+**📥 Latest release: [`10.0.19+002`](https://github.com/ShiroiKuma0/shiroikuma-doksho/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-doksho/releases)
 
 </div>
 
@@ -87,7 +87,8 @@ recent, favourites, tags, playlists) — pick the categories, restore just those
 
 ## 🔒 Google-free, and nothing on your shared storage
 
-No Google services, ads or analytics; CBR comics still open. Settings, profiles, caches and
+No Google services, ads or analytics, and no LibreraX tie-ins; one engine, MuPDF, for every
+PDF and e-book (upstream's PDFium and foliate-js engines are left out); CBR comics still open. Settings, profiles, caches and
 backups live in the app's own directory — nothing is written to `/sdcard/Librera` or
 `Download/Librera`. It asks for *All files access* on every open until it has
 it, so any book on the phone — including ones handed over by a file manager — opens. Full speed (no `vmSafeMode`), arm64.
@@ -99,13 +100,13 @@ it, so any book on the phone — including ones handed over by a file manager �
 A fork of [Librera Reader](https://github.com/foobnix/LibreraReader) by Ivan Ivanenko (app id
 `shiroikuma.doksho`, so it coexists with the official builds). Every reading feature — PDF, EPUB,
 MOBI/AZW, DjVu, FB2, CBZ/CBR, DOC/DOCX, RTF, OPDS, dictionaries, text-to-speech — is Librera's;
-this fork adds to them. The code remains under the GNU GPL v3.0.
+this fork adds to them. Current base: Librera Reader **10.0.19**. The code remains under the GNU GPL v3.0.
 
 ## Building
 
 ```bash
 git clone -b custom https://github.com/ShiroiKuma0/shiroikuma-doksho.git && cd shiroikuma-doksho
 export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ANDROID_HOME=$HOME/android-sdk
-shiroikuma/build-mupdf.sh            # native MuPDF library, arm64-v8a (needs the Android NDK)
+shiroikuma/build-mupdf.sh            # native libraries (MuPDF & co.), arm64-v8a (needs the Android NDK)
 ./gradlew assembleDokshoRelease      # signing: keystore.properties, see .claude/skills/build-apk
 ```
