@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 白い熊 読書: the PDF tools bar (shiroikuma.doksho.annot). -->
+<resources>
+    <string name="doksho_annot_form" translatable="false">Fill in forms</string>
+    <string name="doksho_annot_text" translatable="false">Text box</string>
+    <string name="doksho_annot_pen" translatable="false">Pen</string>
+    <string name="doksho_annot_eraser" translatable="false">Eraser</string>
+    <string name="doksho_annot_undo" translatable="false">Undo</string>
+    <string name="doksho_annot_redo" translatable="false">Redo</string>
+    <string name="doksho_annot_close" translatable="false">Close the PDF tools</string>
+    <string name="doksho_annot_hint" translatable="false">Tap a tool; tap it again to read and scroll. Long-press a tool for its options. Two fingers scroll and zoom with any tool.</string>
+    <string name="doksho_annot_scroll_only" translatable="false">The PDF tools work in Scroll mode — switch the book to Scroll mode first.</string>
+    <string name="doksho_annot_not_pdf" translatable="false">The PDF tools work on PDF files only.</string>
+
+    <string name="doksho_annot_colour" translatable="false">Colour</string>
+    <string name="doksho_annot_colour_more" translatable="false">Any colour…</string>
+    <string name="doksho_annot_thickness" translatable="false">Thickness: %1$s pt</string>
+    <string name="doksho_annot_opacity" translatable="false">Opacity: %1$d %%</string>
+    <string name="doksho_annot_finger" translatable="false">A finger draws too (off: only the stylus draws, a finger scrolls)</string>
+    <string name="doksho_annot_eraser_size" translatable="false">Size: %1$d dp</string>
+    <string name="doksho_annot_erase_what" translatable="false">Erases</string>
+    <string name="doksho_annot_erase_ink" translatable="false">Pen strokes</string>
+    <string name="doksho_annot_erase_text" translatable="false">Text boxes</string>
+    <string name="doksho_annot_erase_other" translatable="false">Other annotations (highlights, notes, shapes)</string>
+    <string name="doksho_annot_eraser_note" translatable="false">Form fields are never erased. The stylus’s eraser end erases with any tool.</string>
+    <string name="doksho_annot_font" translatable="false">Font</string>
+    <string name="doksho_annot_font_sans" translatable="false">Sans</string>
+    <string name="doksho_annot_font_serif" translatable="false">Serif</string>
+    <string name="doksho_annot_font_mono" translatable="false">Mono</string>
+    <string name="doksho_annot_size" translatable="false">Size: %1$s pt</string>
+    <string name="doksho_annot_size_auto" translatable="false">Size: fits the field</string>
+    <string name="doksho_annot_own_style" translatable="false">Keep each field’s own font, size and colour</string>
+    <string name="doksho_annot_cjk_note" translatable="false">Japanese, Chinese, Korean, Greek and Cyrillic text is set in a matching font automatically.</string>
+
+    <string name="doksho_annot_new_text" translatable="false">New text box</string>
+    <string name="doksho_annot_edit_text" translatable="false">Text box</string>
+    <string name="doksho_annot_field" translatable="false">Form field</string>
+    <string name="doksho_annot_delete" translatable="false">Delete</string>
+    <string name="doksho_annot_no_field" translatable="false">No form field here.</string>
+    <string name="doksho_annot_read_only" translatable="false">This field is read-only.</string>
+    <string name="doksho_annot_unsupported" translatable="false">This kind of field can’t be filled here.</string>
+    <string name="doksho_annot_failed" translatable="false">The PDF could not be changed.</string>
+    <string name="doksho_annot_max_len" translatable="false">At most %1$d characters.</string>
+    <string name="doksho_annot_own_style_short" translatable="false">Field’s own style</string>
+    <string name="doksho_annot_font_import" translatable="false">Import a font file…</string>
+    <string name="doksho_annot_font_import_failed" translatable="false">“%1$s” could not be read as a font.</string>
+    <string name="doksho_annot_fonts_builtin" translatable="false">BUILT INTO EVERY PDF VIEWER</string>
+    <string name="doksho_annot_fonts_mine" translatable="false">YOUR FONTS</string>
+    <string name="doksho_annot_fonts_system" translatable="false">ANDROID’S FONTS</string>
+    <string name="doksho_annot_font_embed_note" translatable="false">A font file is embedded in the PDF, cut down to the characters the field uses.</string>
+    <string name="doksho_annot_font_sample" translatable="false">Aa Žž 123 白い熊</string>
+    <string name="doksho_annot_font_missing" translatable="false">This font has no glyph for %1$d of the characters — they show as empty boxes.</string>
+
+    <string name="doksho_file_empty" translatable="false">Nothing here.</string>
+    <string name="doksho_file_save" translatable="false">Save</string>
+    <string name="doksho_file_bad_name" translatable="false">Type a file name.</string>
+
+    <string name="doksho_save_title" translatable="false">Save the changes?</string>
+    <string name="doksho_save_body" translatable="false">Save writes them into the original:\n%1$s\n\nSave as… keeps the original as it is and writes a new file.</string>
+    <string name="doksho_save_from_app" translatable="false">“%1$s”, as %2$s gave it</string>
+    <string name="doksho_save_other_app" translatable="false">the app that opened it</string>
+    <string name="doksho_save" translatable="false">Save</string>
+    <string name="doksho_save_as" translatable="false">Save as…</string>
+    <string name="doksho_save_discard" translatable="false">Don’t save</string>
+    <string name="doksho_save_as_title" translatable="false">Save as</string>
+    <string name="doksho_save_saving" translatable="false">Saving…</string>
+    <string name="doksho_save_done" translatable="false">Saved — %1$s</string>
+    <string name="doksho_save_failed" translatable="false">Could not save into %1$s.</string>
+    <string name="doksho_save_read_only" translatable="false">%1$s lent the file read-only, so it cannot be overwritten. Choose where to save it.</string>
+    <string name="doksho_save_overwrite" translatable="false">%1$s already exists. Overwrite it?</string>
+    <string name="doksho_save_overwrite_yes" translatable="false">Overwrite</string>
+</resources>

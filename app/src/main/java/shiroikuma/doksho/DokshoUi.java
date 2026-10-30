@@ -73,6 +73,25 @@ public final class DokshoUi {
     /** Set once books have been switched to Scroll mode (the film) as the fork's default. */
     public static final String FILM_DEFAULT_DONE = "film_default_done";
 
+    /** PDF tools (shiroikuma.doksho.annot): the last tool, and each tool's options. */
+    public static final String ANNOT_TOOL = "annot_tool";
+    public static final String ANNOT_PEN_COLOR = "annot_pen_color";
+    public static final String ANNOT_PEN_WIDTH = "annot_pen_width";       // tenths of a point
+    public static final String ANNOT_PEN_OPACITY = "annot_pen_opacity";   // percent
+    public static final String ANNOT_PEN_FINGER = "annot_pen_finger";     // a finger draws (off: stylus only)
+    public static final String ANNOT_ERASER_SIZE = "annot_eraser_size";   // dp, the circle's radius
+    public static final String ANNOT_ERASE_INK = "annot_erase_ink";
+    public static final String ANNOT_ERASE_TEXT = "annot_erase_text";
+    public static final String ANNOT_ERASE_OTHER = "annot_erase_other";
+    public static final String ANNOT_TEXT_FONT = "annot_text_font";       // 0 sans, 1 serif, 2 mono
+    public static final String ANNOT_TEXT_SIZE = "annot_text_size";       // points
+    public static final String ANNOT_TEXT_COLOR = "annot_text_color";
+    public static final String ANNOT_FORM_FONT = "annot_form_font";
+    public static final String ANNOT_FORM_SIZE = "annot_form_size";       // points, 0 = fit the field
+    public static final String ANNOT_FORM_COLOR = "annot_form_color";
+    public static final String ANNOT_FORM_OWN = "annot_form_own";         // keep the field's own style
+    public static final String ANNOT_FORM_FONT_FILE = "annot_form_font_file"; // a TrueType / OpenType file; "" = ANNOT_FORM_FONT
+
     /** Colour-picker memory: the last colours chosen, newest first, comma-separated ARGB ints. */
     public static final String RECENT_COLORS = "recent_colors";
     public static final int MAX_RECENT = 8;
@@ -153,6 +172,24 @@ public final class DokshoUi {
         ALL.add(new Setting(EDGE_PAGING, true));
         ALL.add(new Setting(SCROLL_EDGES, true));
         ALL.add(new Setting(FILM_DEFAULT_DONE, false));
+
+        ALL.add(new Setting(ANNOT_TOOL, 0));
+        ALL.add(new Setting(ANNOT_PEN_COLOR, 0xFF1E4BD2));
+        ALL.add(new Setting(ANNOT_PEN_WIDTH, 15));
+        ALL.add(new Setting(ANNOT_PEN_OPACITY, 100));
+        ALL.add(new Setting(ANNOT_PEN_FINGER, true));
+        ALL.add(new Setting(ANNOT_ERASER_SIZE, 12));
+        ALL.add(new Setting(ANNOT_ERASE_INK, true));
+        ALL.add(new Setting(ANNOT_ERASE_TEXT, true));
+        ALL.add(new Setting(ANNOT_ERASE_OTHER, true));
+        ALL.add(new Setting(ANNOT_TEXT_FONT, 0));
+        ALL.add(new Setting(ANNOT_TEXT_SIZE, 12));
+        ALL.add(new Setting(ANNOT_TEXT_COLOR, BLACK));
+        ALL.add(new Setting(ANNOT_FORM_FONT, 0));
+        ALL.add(new Setting(ANNOT_FORM_SIZE, 0));
+        ALL.add(new Setting(ANNOT_FORM_COLOR, BLACK));
+        ALL.add(new Setting(ANNOT_FORM_OWN, false));
+        ALL.add(new Setting(ANNOT_FORM_FONT_FILE, ""));
     }
 
     private static SharedPreferences sp;

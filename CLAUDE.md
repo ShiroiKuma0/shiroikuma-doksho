@@ -62,7 +62,8 @@ shiroikuma/build-mupdf.sh             # native lib → app/src/main/jniLibs/arm6
 Keep it a **small, legible layer** so rebases stay cheap:
 
 - `shiroikuma/` — everything that is only ours: `fork.gradle` (flavour, signing, version, `buildFork`),
-  `fork.properties` (counter), `build-mupdf.sh` (native build).
+  `fork.properties` (counter), `build-mupdf.sh` (native build: adds `shiroikuma/jni/*.c` to the MuPDF
+  module and HarfBuzz's `hb-subset*.cc` to its harfbuzz module).
 - `app/src/doksho/` — the flavour source set: `LibreraBuildConfig`, the Google-API stubs copied from
   `app/src/fdroid/java` (without the junrar stubs). If upstream's main code starts using a Google API
   the stubs lack, the compile fails in `app/src/doksho/java` — re-copy the stub from `app/src/fdroid/java`.
@@ -94,6 +95,13 @@ Keep it a **small, legible layer** so rebases stay cheap:
     foreground without it, the system's All files access page opens (coming back from it is not a
     new open); a book sent by another app waits for that answer before it is resolved — without the
     access a PDF in shared storage is visible but unreadable and the opener gave up (白い熊 2026-10-05).
+  - PDF tools (`shiroikuma/doksho/annot`): `pdf/info/wrapper/DocumentWrapperUI.java`,
+    `sys/VerticalModeController.java`, `org/ebookdroid/core/DecodeServiceBase.java`,
+    `org/ebookdroid/droids/mupdf/codec/MuPdfDocument.java`; `pdf/info/ExtUtils.java` (`filmPdf`);
+    `pdf/info/view/ProgressDraw.java` (accent colour).
+  - Saving edits into the original: `OpenerActivity.java` (`DokshoOrigin.realFile` before Librera's
+    copy fallback, `DokshoOrigin.opened` as the book opens), `sys/VerticalModeController.java`
+    (`onCloseActivityAdnShowInterstial` → `annot.SaveOnClose.ask`).
   - `README.md` — ours (upstream edits theirs every release: on a rebase conflict keep ours).
   - `.gitignore` — our block at the end.
 
@@ -143,7 +151,9 @@ All in `app/src/main/java/shiroikuma/doksho/` (fork-only files):
   Scroll mode (the film roll 白い熊 wants): `VScrollController.getScrollLimits` holds sideways panning
   to the page's edges (`scrollLimitsX`, switch `SCROLL_EDGES`); `ExtUtils.showDocumentWithoutDialog`
   calls `filmOnce()` — books switch from Book to Scroll mode once (`FILM_DEFAULT_DONE`), a later
-  switch back is respected. The UI page link is also the first row of the Preferences page / sidebar
+  switch back is respected; `filmPdf()` beside it opens every **PDF** in Scroll mode (where the PDF
+  tools are) unless the open is the reader's own mode switch — the same file reopened from inside a
+  reader activity. The UI page link is also the first row of the Preferences page / sidebar
   (`PrefFragment2` → `DokshoUiActivity.addLink`).
 - **`ExportImportPanel`** + **`backup/ShiroikumaExport`** — the family Export / Import (ported from
   termux-api): SAF export directory (device-local `doksho_eximport`), ZIP
@@ -160,6 +170,25 @@ All in `app/src/main/java/shiroikuma/doksho/` (fork-only files):
   (`shiroikuma.doksho.automation`: describe / export / import / cancel, callers pinned by package +
   certificate), `AutomationDataService` (dataSync FGS), `AutomationAuth` (prefs `shiroikuma_automation`,
   never exported), `AutomationProgress`, `AutomationJobs`, `AutomationForeground`.
+- **`annot/*`** — the PDF tools (Scroll mode, PDFs only): `DokshoPdf` (natives in
+  `shiroikuma/jni/doksho_annot.c`, compiled into libMuPDF by `build-mupdf.sh`: form fields, FreeText
+  boxes, ink, eraser, MuPDF's undo journal, incremental / rename-over save), `AnnotSession` (screen ↔
+  page geometry; edits on the decoder thread under `TempHolder.lock`, then the pages re-open),
+  `AnnotLayer` (the overlay over `drawView`), `AnnotTools` (the toolbar — tap a tool, long-press for
+  its options popup — and the dialogs). Settings `ANNOT_*` / `PEN_*` / `ERASER_*` / `TEXT_*` /
+  `FORM_*` in `DokshoUi`. Form fields can be filled in any TrueType / OpenType file (`FormFonts`:
+  the three built-ins, imported fonts in the app's fonts directory, `/system/fonts`): MuPDF draws the
+  field, then `setWidgetValueFont` replaces the text part of its appearance with ours, in a Type0 font
+  embedded as a subset cut by HarfBuzz (`hb-subset`, compiled in by `build-mupdf.sh` — MuPDF's own
+  subsetter fails on CID-keyed CFF; for those the codes are CIDs read from the CFF charset). The
+  editor (`FormEditor`) docks beside the field, the text is drawn over it live at its real size
+  (`FieldPreview`, the same layout as the native `dk_layout`). Closing with edits: `SaveOnClose`
+  (Save into the original — for a copy another app sent, written back through its URI; Save as in
+  `DokshoFileDialog`, starting in the original's directory). Hooks: `DocumentWrapperUI` (`editTop2` tap opens the bar, long-press keeps
+  upstream's panel), `VerticalModeController.getActivityController`, `DecodeServiceBase`
+  (`runEdit`, `editPage`, `reopenPages`), `MuPdfDocument.saveAnnotations` → `DokshoPdf.save`.
+- **Progress line** — `ProgressDraw.updateColor` paints in `C_ACCENT` while the skin is on (Book
+  mode drew it in Librera's status-bar colour, which the skin never reached).
 - Manifest: `app/src/doksho/AndroidManifest.xml` (merged; upstream's untouched). Strings:
   `app/src/doksho/res/values/strings_doksho_ui.xml`.
 

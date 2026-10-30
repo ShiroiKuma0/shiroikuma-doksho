@@ -448,8 +448,10 @@ public class MuPdfDocument extends AbstractCodecDocument {
                 LOG.d("Save Annotations skip isRecycled");
                 return;
             }
-            saveInternal(documentHandle, path);
-            LOG.d("Save Annotations saveInternal 2");
+            // 白い熊 読書: incremental where possible, else written beside and renamed over —
+            // upstream's saveInternal rewrote the very file the open document reads from.
+            boolean saved = shiroikuma.doksho.annot.DokshoPdf.save(documentHandle, path);
+            LOG.d("Save Annotations saveInternal 2", saved);
         } finally {
             TempHolder.lock.unlock();
         }

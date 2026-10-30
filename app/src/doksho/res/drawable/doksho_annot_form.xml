@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 白い熊 読書: the PDF tools bar (shiroikuma.doksho.annot). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:fillType="evenOdd"
+        android:pathData="M3,5h18v14H3V5zM5,7v10h14V7H5zM7,9h2v6H7V9zM6,8.5h4v1H6zM6,14.5h4v1H6z" />
+</vector>

@@ -1,9 +1,16 @@
 package shiroikuma.doksho;
 
+import android.app.Activity;
+import android.content.Context;
 import android.graphics.Matrix;
+import android.net.Uri;
 
 import com.foobnix.model.AppSP;
 import com.foobnix.model.AppState;
+import com.foobnix.pdf.search.activity.HorizontalViewActivity;
+
+import org.ebookdroid.BookType;
+import org.ebookdroid.ui.viewer.VerticalViewActivity;
 
 /**
  * Book mode (Librera's page-by-page reader, {@code PageImaveView} inside the horizontal pager) as
@@ -138,5 +145,21 @@ public final class DokshoPaging {
         if (AppSP.get().readingMode == AppState.READING_MODE_BOOK) {
             AppSP.get().readingMode = AppState.READING_MODE_SCROLL;
         }
+    }
+
+    /**
+     * A PDF always opens in Scroll mode — where the PDF tools are — whatever mode the last book was
+     * read in. The one exception is the reader's own mode switch (the Paged / Scroll button, the
+     * share menu's modes): it reopens the same book from inside the reader, and gets the mode chosen.
+     */
+    public static void filmPdf(Context c, Uri uri) {
+        if (AppSP.get().readingMode != AppState.READING_MODE_BOOK) return;
+        String path = uri == null ? null : uri.getPath();
+        if (!BookType.PDF.is(path)) return;
+        if (c instanceof HorizontalViewActivity || c instanceof VerticalViewActivity) {
+            Uri open = ((Activity) c).getIntent().getData();
+            if (open != null && path.equals(open.getPath())) return;
+        }
+        AppSP.get().readingMode = AppState.READING_MODE_SCROLL;
     }
 }
