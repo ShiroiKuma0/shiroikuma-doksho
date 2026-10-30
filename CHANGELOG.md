@@ -6,6 +6,29 @@
 Releases of [白い熊 読書](https://github.com/ShiroiKuma0/shiroikuma-doksho), each built on a Librera
 Reader release. Librera Reader's own changelog follows unchanged below.
 
+## 白い熊 読書 9.6.39+009 — 2026-10-30
+
+Built on **Librera Reader 9.6.39** (upstream tag `9.6.39`).
+
+### PDF editing
+- **A toolbar of PDF tools.** The reader's edit button (Scroll mode) opens a small bar over the page: fill in forms, text box, pen, eraser, undo, redo, close. A tap picks a tool (tap again to read and scroll); a long-press opens its options. Two fingers scroll and zoom with any tool. A long-press on the edit button still opens Librera's old drawing panel.
+- **Fill in forms.** Fillable fields are outlined. Tap a text field to type into it; checkboxes and radio buttons toggle; drop-down and list fields show their choices. Read-only fields say so.
+- **Form fields in any font.** Besides Sans, Serif and Mono, a field can be filled in any TrueType / OpenType font: your imported fonts, Android's own (`/system/fonts`), or a new one via *Import a font file…*. The font is embedded in the PDF as a subset of the characters the field uses — Japanese CID-keyed `.otf` fonts and Noto CJK collections included — and the text stays searchable and copyable. A font missing some of the characters says how many.
+- **The field editor docks beside the field.** The page scrolls the field near the top and the editor opens right below it (above, when there is no room), so the field stays in view. The text is drawn over the field live — the real size at the current zoom, in the chosen font and colour, laid out exactly as it will be in the PDF (fit-to-field sizing, wrapping, centring, one-character boxes). *Field's own style* keeps the field's font, size and colour.
+- **Text boxes anywhere.** Tap empty space to add a box; tap a box to edit or delete it; drag it to move it. Font (Sans, Serif, Mono), size and colour; Japanese, Chinese, Korean, Greek and Cyrillic switch to a matching font by themselves.
+- **Pen.** Draw with a finger or the stylus; each stroke becomes a PDF ink annotation. Colour (swatches or any colour), thickness 0.2–12 pt with a preview, opacity, and *a finger draws too* (off: only the stylus draws, a finger scrolls).
+- **Eraser.** Wipes pen strokes only where it touches the line; it can also erase text boxes and other annotations (each switchable), never form fields. The stylus's eraser end erases with any tool.
+- **Undo / redo** through every edit.
+
+### Saving
+- **Save into the original.** Closing an edited PDF asks *Save*, *Save as…* or *Don't save*, naming the original. Save writes into it — for a book another app lent as a copy, back through that app (and on to Save as if it was lent read-only). Save as keeps the original and starts in its directory. Back stays in the book; Librera's *save automatically* saves without asking. Librera saved into its own copy in Android/data.
+- **Safer writing.** Changes are appended to the file (an incremental save); when that is impossible the file is written beside it and renamed over, never rewritten under the open book.
+- **Books from other apps open as the real file.** The path 書類管理 (and Material Files) sends along is used first, and file managers' URIs are decoded fully — names with letters like ř or í were left encoded and fell back to a copy.
+
+### Reading
+- **PDFs always open in Scroll mode**, where the PDF tools are — switching an open book to Paged still works for that book.
+- **The reading-progress line in the accent colour** in both modes; Book mode drew it in Librera's status-bar colour.
+
 ## 白い熊 読書 9.6.39+005 — 2026-10-18
 
 Built on **Librera Reader 9.6.39** (upstream tag `9.6.39`).
