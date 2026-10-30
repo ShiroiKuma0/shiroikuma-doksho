@@ -1968,6 +1968,9 @@ public class PrefFragment2 extends UIFragment {
             exportToLibreraX.setCompoundDrawablesRelative(libreraXMark, null, null, null);
         }
         exportToLibreraX.setOnClickListener(v -> LibreraX.exportTo(getActivity()));
+        if (AppsConfig.IS_DOKSHO) {
+            ((View) exportToLibreraX.getParent()).setVisibility(View.GONE);
+        }
 
 
         // folders
@@ -2698,6 +2701,9 @@ public class PrefFragment2 extends UIFragment {
             }
         });
 
+        if (AppsConfig.IS_DOKSHO) {
+            inflate.findViewById(R.id.libreraXBlock).setVisibility(View.GONE);
+        }
         inflate.findViewById(R.id.libreraXAppStore)
                .setOnClickListener(v -> Urls.open(getActivity(), LibreraX.DOWNLOAD_URL_APP_STORE));
         inflate.findViewById(R.id.libreraXGooglePlay)

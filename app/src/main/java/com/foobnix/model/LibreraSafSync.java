@@ -86,7 +86,8 @@ public class LibreraSafSync {
      * the app may still write it, and it does not have the permission that makes it pointless.
      */
     public static boolean isActive(Context c) {
-        if (c == null || Android6.canWrite(c)) {
+        // shiroikuma-doksho: the profile stays in the app's own directory, never a Librera folder
+        if (AppsConfig.IS_DOKSHO || c == null || Android6.canWrite(c)) {
             return false;
         }
         Uri tree = tree(c);
@@ -318,7 +319,8 @@ public class LibreraSafSync {
      * later loses nothing. The files there are left as they are.
      */
     static void mergeDownloadLibrera(Context c) {
-        if (c == null || !Android6.canWrite(c)) {
+        // shiroikuma-doksho: Download/Librera is Librera's, never merged into ours
+        if (AppsConfig.IS_DOKSHO || c == null || !Android6.canWrite(c)) {
             return;
         }
         File from = downloadLibrera();

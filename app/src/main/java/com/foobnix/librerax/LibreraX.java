@@ -163,6 +163,20 @@ public class LibreraX {
         if (a == null || a.isFinishing()) {
             return;
         }
+        if (AppsConfig.IS_DOKSHO) {
+            // shiroikuma-doksho: the same notice without the offer of LibreraX
+            final AlertDialog.Builder builder = new AlertDialog.Builder(a)
+                    .setMessage(crashed ? R.string.book_open_crashed : R.string.book_open_failed);
+            if (onTryAgain != null) {
+                builder.setPositiveButton(R.string.try_again, (d, which) -> onTryAgain.run());
+                builder.setNegativeButton(R.string.close, (d, which) -> a.finish());
+                builder.setCancelable(false);
+            } else {
+                builder.setPositiveButton(R.string.close, null);
+            }
+            builder.show();
+            return;
+        }
         final boolean installed = isInstalled(a);
         final String url = downloadUrl();
         String message = a.getString(crashed ? R.string.book_open_crashed : R.string.book_open_failed) + "\n\n";

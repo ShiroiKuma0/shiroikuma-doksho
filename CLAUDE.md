@@ -36,7 +36,7 @@ start from what upstream already has: `PageSearcher` reports every hit, `DrawVie
 | applicationId | `shiroikuma.doksho` | `shiroikuma/fork.gradle` → flavour `doksho` |
 | App label | `白い熊 読書` | `shiroikuma/fork.gradle` → `manifestPlaceholders.appName` |
 | Our settings page | **`白い熊 読書 UI`** — every configurable item of the fork; opened by a **long-press on the Settings tab** of the main screen | `shiroikuma/doksho/DokshoUiActivity.java` (see *The UI page* below) |
-| Flavour | `doksho` — Google-free (F-Droid stubs in `app/src/doksho/java`), real junrar (CBR), `vmSafeMode=false`, arm64-v8a only | `shiroikuma/fork.gradle` |
+| Flavour | `doksho` — Google-free (upstream's `app/src/noGms/java` stubs), MuPDF only (no PDFium / foliate-js engine choice — `Engines.IS_ENGINE_CHOICE` is false for us, confirmed by 白い熊 2026-10-30; PDFium itself is dropped from the runtime classpath in `fork.gradle`, so its `.so` files never ship), CBR through libarchive, `vmSafeMode=false`, arm64-v8a only | `shiroikuma/fork.gradle` |
 | `LibreraBuildConfig.FLAVOR` | `"doksho"` → `AppsConfig.IS_FDROID` true (Google-free paths), `AppsConfig.IS_RAR` true | `app/src/doksho/java/com/foobnix/LibreraBuildConfig.java`, `AppsConfig.java` |
 | Launcher icon | Librera PRO's book traced as yellow line-art on black, 読 in place of Librera's "L" swash (confirmed by 白い熊 2026-09-25) | source `shiroikuma/icon/doksho-icon.svg` ← `trace-icon.py`; resources ← `gen-icons.py` into `app/src/doksho/res` |
 | App data | the app's own directory (`/sdcard/Android/data/shiroikuma.doksho/files`), **never** `/sdcard/Librera` or `Download/Librera` (白い熊 2026-09-25); default profile `白い熊 読書` | `AppProfile.DATA_DIR` / `DATA_NAME`, `AppSP.getRootDir` |
@@ -64,9 +64,8 @@ Keep it a **small, legible layer** so rebases stay cheap:
 - `shiroikuma/` — everything that is only ours: `fork.gradle` (flavour, signing, version, `buildFork`),
   `fork.properties` (counter), `build-mupdf.sh` (native build: adds `shiroikuma/jni/*.c` to the MuPDF
   module and HarfBuzz's `hb-subset*.cc` to its harfbuzz module).
-- `app/src/doksho/` — the flavour source set: `LibreraBuildConfig`, the Google-API stubs copied from
-  `app/src/fdroid/java` (without the junrar stubs). If upstream's main code starts using a Google API
-  the stubs lack, the compile fails in `app/src/doksho/java` — re-copy the stub from `app/src/fdroid/java`.
+- `app/src/doksho/` — the flavour source set: `LibreraBuildConfig` only. The Google-API stubs are
+  upstream's shared `app/src/noGms/java`, added to the `doksho` source set by `fork.gradle`.
 - `app/src/main/java/shiroikuma/doksho/Doksho.java` — our name and GitHub URLs (site, Help, releases, issues).
 - **De-branding without touching upstream's resources** — flavour resources win over `main` by name:
   - `shiroikuma/debrand.py` generates `app/src/doksho/res/values*/strings_doksho.xml` (every string
@@ -89,7 +88,10 @@ Keep it a **small, legible layer** so rebases stay cheap:
   - `ui2/fragment/PrefFragment2.java` — About: our GitHub as site and Help, releases as "What's new",
     e-mail and PRO rows hidden, LibreraX reading mode dropped; `pdf/info/Urls.java` — rate → our GitHub;
     `pdf/info/widget/ShareDialog.java` — LibreraX entry hidden; `pdf/info/view/confline/ConfLineView.java`
-    — null options skipped.
+    — null options skipped. Also in `PrefFragment2`: "Export to LibreraX" and the LibreraX store
+    block hidden; `librerax/LibreraX.java` — `showCannotOpen` keeps the notice without the LibreraX offer.
+  - `model/LibreraSafSync.java` — `isActive` / `mergeDownloadLibrera` off: the profile never syncs
+    with a Librera directory nor merges `Download/Librera` (Librera's own settings) into ours.
   - `LibreraApp.java` (`DokshoStorage.register`), `OpenerActivity.java` — All files access asked
     for on every open (`shiroikuma/doksho/DokshoStorage.java`): whenever the app comes to the
     foreground without it, the system's All files access page opens (coming back from it is not a
@@ -171,7 +173,7 @@ All in `app/src/main/java/shiroikuma/doksho/` (fork-only files):
   certificate), `AutomationDataService` (dataSync FGS), `AutomationAuth` (prefs `shiroikuma_automation`,
   never exported), `AutomationProgress`, `AutomationJobs`, `AutomationForeground`.
 - **`annot/*`** — the PDF tools (Scroll mode, PDFs only): `DokshoPdf` (natives in
-  `shiroikuma/jni/doksho_annot.c`, compiled into libMuPDF by `build-mupdf.sh`: form fields, FreeText
+  `shiroikuma/jni/doksho_annot.c`, compiled into libmupdf by `build-mupdf.sh`: form fields, FreeText
   boxes, ink, eraser, MuPDF's undo journal, incremental / rename-over save), `AnnotSession` (screen ↔
   page geometry; edits on the decoder thread under `TempHolder.lock`, then the pages re-open),
   `AnnotLayer` (the overlay over `drawView`), `AnnotTools` (the toolbar — tap a tool, long-press for

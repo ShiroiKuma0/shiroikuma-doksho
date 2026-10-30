@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # ---------------------------------------------------------------------------------------------
-# shiroikuma-doksho — build the native library (MuPDF + DjVu + MOBI + …) for arm64-v8a only.
+# shiroikuma-doksho — build the native libraries (libmupdf.so with our PDF layer, and upstream's
+#   libdjvu / libmobi / libantiword / libhqx / libarchive / liblame) for arm64-v8a only.
 #
 # Upstream's Builder/link_to_mupdf_<ver>.sh does the same for four ABIs, reads its NDK from the
 # global ~/.gradle/gradle.properties and needs a host `make release` (X/GL dev libraries). This
@@ -84,7 +85,7 @@ HB_SUBSET="$(cd "$MUPDF_ROOT" && ls thirdparty/harfbuzz/src/hb-subset*.cc | grep
 MK="$MUPDF_JAVA/jni/MuPDF-$VERSION_TAG.mk"
 awk -v add="$HB_SUBSET" '{ print } /^include \$\(MUPDF_PATH\)\/Makelists/ { print add }' "$MK" > "$MK.tmp" && mv "$MK.tmp" "$MK"
 grep -q "hb-subset-plan.cc" "$MK" || { echo "could not add hb-subset to $MK"; exit 1; }
-sed -i -E 's#^(LOCAL_MODULE := MuPDF)$#\1\nLOCAL_C_INCLUDES += $(MUPDF_ROOT)/thirdparty/harfbuzz/src#' "$MUPDF_JAVA/jni/Android.mk"
+sed -i -E 's#^(LOCAL_MODULE := (MuPDF|mupdf))$#\1\nLOCAL_C_INCLUDES += $(MUPDF_ROOT)/thirdparty/harfbuzz/src#' "$MUPDF_JAVA/jni/Android.mk"
 grep -q "thirdparty/harfbuzz/src" "$MUPDF_JAVA/jni/Android.mk" || { echo "could not add HarfBuzz headers to Android.mk"; exit 1; }
 
 (cd "$MUPDF_JAVA" && "$NDK/ndk-build" -j"$(nproc)" \

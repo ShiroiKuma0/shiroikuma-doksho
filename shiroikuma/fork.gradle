@@ -99,6 +99,16 @@ android {
     }
 }
 
+// PDFium (io.legere:pdfiumandroid, upstream's second PDF engine since 10.0) stays out of our APK:
+// 白い熊 読書 is MuPDF only (Engines.IS_ENGINE_CHOICE is false for us, so AppState.getPdfEngine()
+// always answers MuPDF and PdfiumContext is never reached). It is still compiled against, so
+// upstream's code builds unchanged; only the runtime classpath, and with it the 5 MB of .so, drops it.
+configurations.configureEach { c ->
+    if (c.name.startsWith("doksho") && c.name.endsWith("RuntimeClasspath")) {
+        c.exclude group: 'io.legere', module: 'pdfiumandroid'
+    }
+}
+
 dependencies {
     dokshoImplementation project(':libPro')     // ad / consent stubs, as for F-Droid
 }

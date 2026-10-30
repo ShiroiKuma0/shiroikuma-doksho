@@ -159,7 +159,7 @@ new upstream code × 10000 + 1 is higher than any code of the old line, and `bui
 | Fork hook | `apply from: "$rootDir/shiroikuma/fork.gradle"` before `android {` | `app/build.gradle` |
 | Flavour, signing, version, `buildFork` | `doksho` flavour: `shiroikuma.doksho`, `白い熊 読書`, `appSafeMode false`, arm64 | `shiroikuma/fork.gradle` |
 | Counter | `BUILD_NUMBER=1` | `shiroikuma/fork.properties` |
-| Flavour source set | `LibreraBuildConfig.FLAVOR = "doksho"` + Google stubs | `app/src/doksho/java` |
+| Flavour source set | `LibreraBuildConfig.FLAVOR = "doksho"`; `src/noGms/java` added to the source set; `appWebClientId` (and any new placeholder) in the flavour | `app/src/doksho/java`, `shiroikuma/fork.gradle` |
 | Google-free + CBR | `doksho` in `IS_FDROID`; `IS_RAR`; `.cbr` gated on `IS_RAR` | `AppsConfig.java`, `ExtUtils.java`, `BookType.java` |
 | Gitignore block | `keystore.properties`, `*.jks`, `/app/src/main/jniLibs/`, `/.scratch/` | `.gitignore` |
 | Our guide + skills | present | `CLAUDE.md`, `.claude/skills/` |
@@ -175,9 +175,10 @@ new upstream code × 10000 + 1 is higher than any code of the old line, and `bui
 Regression greps — each must print nothing (a rebase will not flag a new upstream flavour or stub gap):
 
 ```bash
-git diff master..custom --stat -- app/src/fdroid          # we never edit upstream's fdroid set
-diff <(cd app/src/fdroid/java && find . -name '*.java' ! -path './com/github/junrar/*' | sort) \
-     <(cd app/src/doksho/java && find . -name '*.java' | sort)   # a new upstream stub → copy it over
+git diff master..custom --stat -- app/src/fdroid app/src/noGms   # we never edit upstream's stub sets
+find app/src/doksho/java -name '*.java' ! -name LibreraBuildConfig.java   # stubs come from noGms only
+git show master:app/build.gradle | grep -oE '^\s+app[A-Za-z]+\s*:' | sort -u | tr -d ' :' \
+  | while read k; do grep -q "$k" shiroikuma/fork.gradle || echo "missing placeholder $k"; done
 ```
 
 Then confirm the build script still evaluates:

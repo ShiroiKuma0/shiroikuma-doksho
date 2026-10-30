@@ -2,7 +2,7 @@ package shiroikuma.doksho.annot;
 
 /**
  * The PDF editing layer's native half ({@code shiroikuma/jni/doksho_annot.c}, linked into
- * libMuPDF.so by {@code shiroikuma/build-mupdf.sh}). Every call takes the handles Librera's own
+ * libmupdf.so by {@code shiroikuma/build-mupdf.sh}). Every call takes the handles Librera's own
  * bridge opened — {@code CodecDocument.getDocumentHandle()}, {@code CodecPage.getPageHandle()} — and
  * must run under {@code TempHolder.lock}, as Librera's calls do.
  *

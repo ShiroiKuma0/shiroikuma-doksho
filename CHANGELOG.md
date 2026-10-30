@@ -6,6 +6,37 @@
 Releases of [白い熊 読書](https://github.com/ShiroiKuma0/shiroikuma-doksho), each built on a Librera
 Reader release. Librera Reader's own changelog follows unchanged below.
 
+## 白い熊 読書 10.0.19+001 — 2026-10-30
+
+Built on **Librera Reader 10.0.19** (upstream tag `10.0.19`) — every customization of 9.6.39+009
+carried over onto the new upstream line.
+
+### Fork
+- **MuPDF only.** Upstream 10.0 adds PDFium and foliate-js as alternative engines; 白い熊 読書
+  keeps MuPDF for PDFs and e-books, where the PDF tools, the night duotone and the page paging live.
+- **CBR through libarchive**, upstream's new comic reader, in place of junrar.
+- **Settings stay in the app's own directory.** Upstream's new syncing of the profile with a
+  `Librera` directory, and its merge of `Download/Librera` into the profile, are off.
+- **LibreraX stays out**: upstream's new *Export to LibreraX*, the LibreraX store badges and the
+  *open it in LibreraX* offer after a failed open are hidden (the failed-open notice remains).
+- The native build follows upstream's split into separate libraries (`libmupdf`, `libdjvu`,
+  `libmobi`, `libantiword`, `libhqx`, `libarchive`, `liblame`).
+
+### Upstream 10.0.0 – 10.0.19
+Upstream's own `CHANGELOG.md` has no section for these yet; from its release notes and commits:
+- Underline and highlight in EPUB and other reflowable books, kept by the app.
+- SAF directories can be added to the library; the SAF directory browser shows icons; a new
+  library-directories dialog.
+- Read-aloud (TTS): the first request waits for the engine instead of being lost, no more
+  once-a-second voice-list polling (stopping went from ~2.8 s to ~20 ms), TTS buttons at the
+  bottom, a close button, faster abbreviation handling.
+- A home-screen book-cover widget and book shortcuts.
+- Books can be opened from a stream (`content://` without a file).
+- FB2 → XHTML and HTML → EPUB converters; DOC / DOCX / ODT, footnote and image fixes; faster
+  hyphenation; dictionary, bookmark-panel and password-protected-PDF fixes.
+- Brightness is no longer applied in the library; the status-bar colour is saved.
+- New colours and design for the directory chooser and buttons; translations for every locale.
+
 ## 白い熊 読書 9.6.39+009 — 2026-10-30
 
 Built on **Librera Reader 9.6.39** (upstream tag `9.6.39`).

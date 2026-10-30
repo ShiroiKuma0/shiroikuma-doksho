@@ -31,7 +31,7 @@ description: Build the signed release APK of shiroikuma-doksho (白い熊 読書
 | Code namespaces (**UNCHANGED**) | `com.foobnix.pdf.info` (R / manifest), `com.foobnix.*`, `org.ebookdroid.*` — never rename |
 | Product flavour | `doksho` (defined in `shiroikuma/fork.gradle`; every other upstream flavour is disabled) |
 | Target ABI | `arm64-v8a` only (ABI splits off, `ndk.abiFilters` arm64) → exactly one APK |
-| Native library | `libMuPDF.so` + `liblame.so`, built by `shiroikuma/build-mupdf.sh` into `app/src/main/jniLibs/arm64-v8a/` (gitignored) |
+| Native libraries | `libmupdf.so` (with our PDF layer) + upstream's `libdjvu` / `libmobi` / `libantiword` / `libhqx` / `libarchive` / `liblame`, built by `shiroikuma/build-mupdf.sh` into `app/src/main/jniLibs/arm64-v8a/` (gitignored) |
 | Gradle task | `./gradlew buildFork` (root project name resolves it to `:app:buildFork`) |
 | Built APK dir | `app/build/outputs/apk/doksho/release/` |
 | Delivered APK | `~/tmp/shiroikuma-doksho_<versionName>_arm64-v8a.apk` → `/sdcard/tmp/` |
@@ -54,7 +54,7 @@ Run every build, git and keystore command with `dangerouslyDisableSandbox: true`
 
 ## Steps
 
-1. **Native library present?** `ls app/src/main/jniLibs/arm64-v8a/libMuPDF.so`. It is gitignored,
+1. **Native library present?** `ls app/src/main/jniLibs/arm64-v8a/libmupdf.so` (named `libMuPDF.so` before upstream 10.0). It is gitignored,
    so a fresh clone, a `git clean`, or an upstream sync that touched `Builder/jni/` or moved the MuPDF
    version (a new `Builder/all-release-<ver>.sh`) needs a rebuild:
 
@@ -142,13 +142,15 @@ All of it is in **`shiroikuma/fork.gradle`**, which overrides upstream's `versio
   Drive keys (`librera_admobAppId`, `pro_appGdriveKey`, …) from the global gradle properties;
   `fork.gradle` blanks the known ones. A new upstream flavour fails configuration with
   *"Could not get unknown property '<flavour>_…'"* — add the flavour to the list in `fork.gradle`.
-- **Google stubs.** `app/src/doksho/java` is a copy of `app/src/fdroid/java` minus the junrar stubs,
-  with `LibreraBuildConfig.FLAVOR = "doksho"`. A compile error about a Google class means upstream's
-  code uses a new API — re-copy the matching stub from `app/src/fdroid/java`.
+- **Google stubs.** Since upstream 10.0 they live in upstream's shared `app/src/noGms/java`, which
+  `fork.gradle` adds to the `doksho` source set exactly as upstream does for `fdroid`;
+  `app/src/doksho/java` holds only `LibreraBuildConfig` (`FLAVOR = "doksho"`). New stubs arrive with
+  the sync by themselves.
 - **No `google-services.json`, on purpose.** The plugin stays applied (upstream's `plugins {}`), its
   `process*GoogleServices` tasks are disabled by `fork.gradle`.
 - **`IS_FDROID` is true for us** (Google Drive tab hidden, rate → GitHub, …) — that is intended. CBR is
-  gated on our `AppsConfig.IS_RAR` instead, which is true because we ship the real junrar.
+  gated on our `AppsConfig.IS_RAR` instead, true for us: since upstream 10.0 libarchive reads CBR
+  (`ComicContext`), junrar is gone.
 - Upstream's `Builder/all-*.sh`, `link_to_mupdf_*.sh`, `copyApks`, `incVersion`, `updateFDroid` are
   **not** our pipeline; never run them (they bump upstream's numbers and build four ABIs).
 

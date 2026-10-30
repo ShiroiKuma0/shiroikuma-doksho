@@ -4,3 +4,5 @@
 -keep public class shiroikuma.doksho.SkinDrawable$* { public <init>(); *; }
 # The PDF tools' natives (shiroikuma/jni/doksho_annot.c) are bound by class and method name.
 -keep class shiroikuma.doksho.annot.DokshoPdf { native <methods>; }
+# PDFium is compiled against but not packaged (fork.gradle): its classes are absent at run time.
+-dontwarn io.legere.pdfiumandroid.**
