@@ -496,23 +496,20 @@ public final class AnnotTools implements AnnotLayer.Actions {
     private void styleOptions(LinearLayout box, final String fontKey, final String sizeKey, final String colorKey,
                               final boolean auto) {
         label(box, a.getString(R.string.doksho_annot_font));
-        if (DokshoUi.ANNOT_FORM_FONT.equals(fontKey)) {
-            final Button fb = DokshoViews.pill(a, "", null);
-            final Runnable showFont = () -> {
-                String p = DokshoUi.s(DokshoUi.ANNOT_FORM_FONT_FILE);
-                fb.setText(FormFonts.label(a, p, DokshoUi.i(fontKey)) + "  ▾");
-                fb.setTypeface(FormFonts.typeface(p, DokshoUi.i(fontKey)));
-            };
+        final String fileKey = DokshoUi.ANNOT_FORM_FONT.equals(fontKey) ? DokshoUi.ANNOT_FORM_FONT_FILE : DokshoUi.ANNOT_TEXT_FONT_FILE;
+        final Button fb = DokshoViews.pill(a, "", null);
+        final Runnable showFont = () -> {
+            String p = DokshoUi.s(fileKey);
+            fb.setText(FormFonts.label(a, p, DokshoUi.i(fontKey)) + "  ▾");
+            fb.setTypeface(FormFonts.typeface(p, DokshoUi.i(fontKey)));
+        };
+        showFont.run();
+        fb.setOnClickListener(v -> FormFonts.pick(a, DokshoUi.s(fileKey), DokshoUi.i(fontKey), (p, b) -> {
+            DokshoUi.set(fileKey, p == null ? "" : p);
+            DokshoUi.set(fontKey, b);
             showFont.run();
-            fb.setOnClickListener(v -> FormFonts.pick(a, DokshoUi.s(DokshoUi.ANNOT_FORM_FONT_FILE), DokshoUi.i(fontKey), (p, b) -> {
-                DokshoUi.set(DokshoUi.ANNOT_FORM_FONT_FILE, p == null ? "" : p);
-                DokshoUi.set(fontKey, b);
-                showFont.run();
-            }));
-            box.addView(fb, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        } else {
-            box.addView(fontChips(DokshoUi.i(fontKey), f -> DokshoUi.set(fontKey, f)));
-        }
+        }));
+        box.addView(fb, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         final TextView size = label(box, "");
         final Runnable show = () -> size.setText(sizeText(DokshoUi.i(sizeKey)));
         show.run();
@@ -522,7 +519,8 @@ public final class AnnotTools implements AnnotLayer.Actions {
         });
         label(box, a.getString(R.string.doksho_annot_colour));
         box.addView(swatches(DokshoUi.i(colorKey), c -> DokshoUi.set(colorKey, c)));
-        TextView note = DokshoViews.text(a, a.getString(R.string.doksho_annot_cjk_note), 13, DokshoUi.i(DokshoUi.C_TEXT2), false);
+        TextView note = DokshoViews.text(a, a.getString(auto ? R.string.doksho_annot_cjk_note : R.string.doksho_annot_text_font_note),
+                13, DokshoUi.i(DokshoUi.C_TEXT2), false);
         note.setPadding(0, dp(8), 0, 0);
         box.addView(note);
     }
@@ -533,51 +531,6 @@ public final class AnnotTools implements AnnotLayer.Actions {
 
     private static String fmt(float v) {
         return v == Math.round(v) ? String.valueOf(Math.round(v)) : String.format(Locale.US, "%.1f", v);
-    }
-
-    private interface FontChosen {
-        void on(int font);
-    }
-
-    private static Typeface typeface(int font) {
-        return font == 1 ? Typeface.SERIF : font == 2 ? Typeface.MONOSPACE : Typeface.SANS_SERIF;
-    }
-
-    private View fontChips(int initial, final FontChosen chosen) {
-        final LinearLayout row = new LinearLayout(a);
-        row.setOrientation(LinearLayout.HORIZONTAL);
-        row.setTag(DokshoViews.NO_SKIN);
-        final int[] sel = {initial};
-        final int[] names = {R.string.doksho_annot_font_sans, R.string.doksho_annot_font_serif, R.string.doksho_annot_font_mono};
-        final Runnable[] paint = new Runnable[1];
-        for (int i = 0; i < 3; i++) {
-            final int f = i;
-            Button b = DokshoViews.pill(a, a.getString(names[i]), v -> {
-                sel[0] = f;
-                chosen.on(f);
-                paint[0].run();
-            });
-            b.setTypeface(typeface(i));
-            b.setPadding(dp(14), dp(6), dp(14), dp(6));
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            lp.rightMargin = dp(8);
-            row.addView(b, lp);
-        }
-        paint[0] = () -> {
-            for (int i = 0; i < 3; i++) {
-                Button b = (Button) row.getChildAt(i);
-                boolean on = i == sel[0];
-                GradientDrawable bg = new GradientDrawable();
-                bg.setColor(on ? DokshoViews.ink() : DokshoViews.ground());
-                bg.setStroke(Math.max(1, dp(1.5f)), DokshoViews.border());
-                bg.setCornerRadius(dp(50));
-                b.setBackground(bg);
-                b.setTextColor(on ? DokshoViews.ground() : DokshoViews.ink());
-            }
-        };
-        paint[0].run();
-        return row;
     }
 
     // ---- the tools' actions ----------------------------------------------------------------------
@@ -672,41 +625,41 @@ public final class AnnotTools implements AnnotLayer.Actions {
         final Page page = hit.page;
         final int pageIndex = page.index.docIndex;
         if (annotIndex < 0) {
-            textDialog(a.getString(R.string.doksho_annot_new_text), "", false, true, 0, false, new TextDone() {
-                @Override
-                public void ok(String text, int font, int size, int color, boolean own) {
-                    if (text.trim().isEmpty()) return;
-                    final float[] r = textBox(page, hit.nx, hit.ny, text, font, size, true);
-                    s.edit(pageIndex, (doc, p) -> DokshoPdf.addText(doc, p, r[0], r[1], r[2] - r[0], r[3] - r[1],
-                            text, font, size, color) >= 0, AnnotTools.this::failedIfNot);
-                }
+            String p = DokshoUi.s(DokshoUi.ANNOT_TEXT_FONT_FILE);
+            String path = p != null && !p.isEmpty() && new java.io.File(p).isFile() ? p : null;
+            int size = DokshoUi.i(DokshoUi.ANNOT_TEXT_SIZE);
+            // the first line's baseline where the finger was
+            float y0 = hit.ny - size * 0.8f / Math.max(1f, s.pageHeightPt(page));
+            new TextBoxEditor(this, a, s, layer, page, bar.getBottom(), hit.nx, y0, "", path,
+                    DokshoUi.i(DokshoUi.ANNOT_TEXT_FONT), size, DokshoUi.i(DokshoUi.ANNOT_TEXT_COLOR), null,
+                    new TextBoxEditor.Done() {
+                        @Override
+                        public void ok(@NonNull String text, @NonNull float[] r, @Nullable String path, int builtin, int size, int color) {
+                            if (text.trim().isEmpty()) return;
+                            final String file = TextBoxEditor.fontFile(path, builtin);
+                            s.edit(pageIndex, (doc, pg) -> DokshoPdf.addText(doc, pg, r[0], r[1], r[2] - r[0], r[3] - r[1],
+                                    text, builtin, size, color, file) >= 0, AnnotTools.this::failedIfNot);
+                        }
 
-                @Override
-                public void delete() {
-                }
-            });
+                        @Override
+                        public void delete() {
+                        }
+                    });
             return;
         }
-        s.query(pageIndex, (doc, p) -> new Object[]{DokshoPdf.annotText(doc, p, annotIndex), DokshoPdf.annotStyle(doc, p, annotIndex)}, r -> {
-            if (r == null) return;
-            String text = r[0] == null ? "" : (String) r[0];
-            float[] style = (float[]) r[1];
-            float[] all = s.annots.get(pageIndex);
-            if (all == null || (annotIndex + 1) * DokshoPdf.A_STRIDE > all.length) return;
-            final int o = annotIndex * DokshoPdf.A_STRIDE;
-            final float x0 = all[o + 1], y0 = all[o + 2];
-            int font = style != null ? (int) style[0] : DokshoUi.i(DokshoUi.ANNOT_TEXT_FONT);
-            int size = style != null && style[1] > 0 ? Math.round(style[1]) : DokshoUi.i(DokshoUi.ANNOT_TEXT_SIZE);
-            int color = style != null ? 0xFF000000 | (int) style[2] : DokshoUi.i(DokshoUi.ANNOT_TEXT_COLOR);
-            textDialog(a.getString(R.string.doksho_annot_edit_text), text, false, true, 0, true, font, size, color, new TextDone() {
+        boxStyle(pageIndex, annotIndex, st -> {
+            if (st == null) return;
+            new TextBoxEditor(this, a, s, layer, page, bar.getBottom(), st.rect[0], st.rect[1], st.text, st.path,
+                    st.builtin, st.size, st.color, st.rect.clone(), new TextBoxEditor.Done() {
                 @Override
-                public void ok(String t, int f, int sz, int c, boolean own) {
+                public void ok(@NonNull String t, @NonNull float[] rect, @Nullable String path, int builtin, int size, int color) {
                     if (t.trim().isEmpty()) {
                         delete();
                         return;
                     }
-                    final float[] rect = textBox(page, x0, y0, t, f, sz, false);
-                    s.edit(pageIndex, (doc, p) -> DokshoPdf.editText(doc, p, annotIndex, rect, t, f, sz, c), AnnotTools.this::failedIfNot);
+                    final String file = TextBoxEditor.fontFile(path, builtin);
+                    s.edit(pageIndex, (doc, p) -> DokshoPdf.editText(doc, p, annotIndex, rect, t, builtin, size, color, file),
+                            AnnotTools.this::failedIfNot);
                 }
 
                 @Override
@@ -717,156 +670,63 @@ public final class AnnotTools implements AnnotLayer.Actions {
         });
     }
 
+    /** A text box as it stands: its words, place and style. */
+    static final class BoxStyle {
+        String text;
+        float[] rect;
+        @Nullable
+        String path;
+        int builtin;
+        int size;
+        int color;
+    }
+
+    interface BoxStyleRead {
+        void on(@Nullable BoxStyle st);
+    }
+
+    /** Reads a text box's words, place, font and style (null when it is gone). */
+    private void boxStyle(final int pageIndex, final int annotIndex, @NonNull final BoxStyleRead done) {
+        s.query(pageIndex, (doc, p) -> new Object[]{DokshoPdf.annotText(doc, p, annotIndex), DokshoPdf.annotStyle(doc, p, annotIndex),
+                DokshoPdf.annotFont(doc, p, annotIndex)}, r -> {
+            float[] all = s.annots.get(pageIndex);
+            if (r == null || all == null || (annotIndex + 1) * DokshoPdf.A_STRIDE > all.length) {
+                done.on(null);
+                return;
+            }
+            final int o = annotIndex * DokshoPdf.A_STRIDE;
+            BoxStyle st = new BoxStyle();
+            st.text = r[0] == null ? "" : (String) r[0];
+            st.rect = new float[]{all[o + 1], all[o + 2], all[o + 3], all[o + 4]};
+            float[] style = (float[]) r[1];
+            st.builtin = style != null ? (int) style[0] : DokshoUi.i(DokshoUi.ANNOT_TEXT_FONT);
+            st.size = style != null && style[1] > 0 ? Math.round(style[1]) : DokshoUi.i(DokshoUi.ANNOT_TEXT_SIZE);
+            st.color = style != null ? 0xFF000000 | (int) style[2] : DokshoUi.i(DokshoUi.ANNOT_TEXT_COLOR);
+            String file = (String) r[2];
+            // a built-in's own file stays "the built-in"
+            st.path = file == null || file.isEmpty() || file.equals(FormFonts.builtinFile(st.builtin)) ? null : file;
+            done.on(st);
+        });
+    }
+
+    @Override
+    public void dragPreview(@NonNull final Page page, final int annotIndex, @NonNull final AnnotLayer.PreviewReady ready) {
+        boxStyle(page.index.docIndex, annotIndex, st -> {
+            if (st == null) return;
+            String file = st.path != null ? st.path : FormFonts.builtinFile(st.builtin);
+            FieldPreview p = FieldPreview.textBox(page, st.rect.clone(), FormFonts.typeface(file, st.builtin), st.size, st.color);
+            p.text = st.text;
+            p.cover = st.rect;
+            ready.on(p);
+        });
+    }
+
     @Override
     public void moveText(@NonNull Page page, final int annotIndex, final float[] rect) {
-        s.edit(page.index.docIndex, (doc, p) -> DokshoPdf.editText(doc, p, annotIndex, rect, null, -1, 0, 0), ok -> {
+        s.edit(page.index.docIndex, (doc, p) -> DokshoPdf.editText(doc, p, annotIndex, rect, null, -1, 0, 0, null), ok -> {
             layer.moveDone();
             failedIfNot(ok);
         });
-    }
-
-    /**
-     * The box a text needs, normalised: wide enough for its longest line (MuPDF wraps inside the box,
-     * so it is measured generously), as tall as its lines. {@code fromTap}: the first line sits
-     * where the finger was; otherwise (x, y) is the box's corner.
-     */
-    private float[] textBox(Page page, float x, float y, String text, int font, int size, boolean fromTap) {
-        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        paint.setTypeface(typeface(font));
-        paint.setTextSize(size);
-        String[] lines = text.split("\n", -1);
-        float longest = 0;
-        for (String l : lines) longest = Math.max(longest, paint.measureText(l));
-        float w = longest * 1.12f + size * 1.2f;
-        float h = lines.length * size * 1.2f + size * 0.7f;
-        float pw = Math.max(1f, s.pageWidthPt(page));
-        float ph = Math.max(1f, s.pageHeightPt(page));
-        float nw = Math.min(1f, w / pw);
-        float nh = Math.min(1f, h / ph);
-        if (fromTap) y -= size * 0.8f / ph;
-        x = Math.max(0f, Math.min(x, 1f - nw));
-        y = Math.max(0f, Math.min(y, 1f - nh));
-        return new float[]{x, y, x + nw, y + nh};
-    }
-
-    // ---- dialogs ---------------------------------------------------------------------------------
-
-    private interface TextDone {
-        void ok(String text, int font, int size, int color, boolean ownStyle);
-
-        void delete();
-    }
-
-    private void textDialog(String title, String initial, boolean form, boolean multiline, int maxLen, boolean canDelete,
-                            TextDone done) {
-        String f = form ? DokshoUi.ANNOT_FORM_FONT : DokshoUi.ANNOT_TEXT_FONT;
-        String z = form ? DokshoUi.ANNOT_FORM_SIZE : DokshoUi.ANNOT_TEXT_SIZE;
-        String c = form ? DokshoUi.ANNOT_FORM_COLOR : DokshoUi.ANNOT_TEXT_COLOR;
-        textDialog(title, initial, form, multiline, maxLen, canDelete, DokshoUi.i(f), DokshoUi.i(z), DokshoUi.i(c), done);
-    }
-
-    /** Type the words; font, size and colour beneath (they become the tool's defaults on OK). */
-    private void textDialog(String title, String initial, final boolean form, boolean multiline, int maxLen,
-                            boolean canDelete, int font, int size, int color, final TextDone done) {
-        final int[] st = {font, size, color};
-        final boolean[] own = {form && DokshoUi.b(DokshoUi.ANNOT_FORM_OWN)};
-        int ink = DokshoViews.ink();
-
-        LinearLayout box = new LinearLayout(a);
-        box.setOrientation(LinearLayout.VERTICAL);
-        box.setPadding(dp(20), dp(16), dp(20), dp(14));
-        box.setBackground(DokshoViews.panelBackground(a));
-        box.setTag(DokshoViews.NO_SKIN);
-        box.addView(DokshoViews.text(a, title, 18, ink, true));
-
-        final EditText edit = new EditText(a);
-        edit.setText(initial);
-        edit.setSelection(edit.getText().length());
-        edit.setTextColor(ink);
-        edit.setHintTextColor(DokshoUi.i(DokshoUi.C_TEXT2));
-        edit.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
-        edit.setBackground(DokshoViews.boxBackground(a, DokshoViews.border()));
-        edit.setPadding(dp(12), dp(10), dp(12), dp(10));
-        edit.setTag(DokshoViews.NO_SKIN);
-        int type = InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES;
-        if (multiline) {
-            type |= InputType.TYPE_TEXT_FLAG_MULTI_LINE;
-            edit.setMinLines(3);
-            edit.setGravity(Gravity.TOP | Gravity.START);
-        } else {
-            edit.setSingleLine(true);
-        }
-        edit.setInputType(type);
-        if (maxLen > 0) edit.setFilters(new InputFilter[]{new InputFilter.LengthFilter(maxLen)});
-        LinearLayout.LayoutParams elp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        elp.topMargin = dp(12);
-        box.addView(edit, elp);
-        if (maxLen > 0) {
-            TextView note = DokshoViews.text(a, a.getString(R.string.doksho_annot_max_len, maxLen), 13, DokshoUi.i(DokshoUi.C_TEXT2), false);
-            note.setPadding(0, dp(4), 0, 0);
-            box.addView(note);
-        }
-
-        final LinearLayout style = new LinearLayout(a);
-        style.setOrientation(LinearLayout.VERTICAL);
-        style.setTag(DokshoViews.NO_SKIN);
-        if (form) {
-            CheckBox keep = DokshoViews.checkbox(a, a.getString(R.string.doksho_annot_own_style), false, 0);
-            keep.setChecked(own[0]);
-            keep.setOnCheckedChangeListener((v, on) -> {
-                own[0] = on;
-                enableTree(style, !on);
-            });
-            box.addView(keep);
-        }
-        label(style, a.getString(R.string.doksho_annot_font));
-        style.addView(fontChips(st[0], v -> {
-            st[0] = v;
-            edit.setTypeface(typeface(v));
-        }));
-        final TextView sizeLabel = label(style, sizeText(st[1]));
-        slider(style, form ? 0 : 4, 72, st[1], v -> {
-            st[1] = v;
-            sizeLabel.setText(sizeText(v));
-        });
-        label(style, a.getString(R.string.doksho_annot_colour));
-        style.addView(swatches(st[2], v -> st[2] = v));
-        box.addView(style);
-        edit.setTypeface(typeface(st[0]));
-        if (form) enableTree(style, !own[0]);
-
-        final AlertDialog dialog = DokshoViews.boxDialog(a, box, true);
-        LinearLayout buttons = DokshoViews.buttonRow(a);
-        buttons.setGravity(Gravity.CENTER_VERTICAL);
-        if (canDelete) {
-            buttons.addView(DokshoViews.pill(a, a.getString(R.string.doksho_annot_delete), v -> {
-                dialog.dismiss();
-                done.delete();
-            }));
-        }
-        buttons.addView(new View(a), new LinearLayout.LayoutParams(0, 0, 1f));
-        buttons.addView(DokshoViews.pill(a, a.getString(R.string.doksho_eim_cancel), v -> dialog.dismiss()));
-        View gap = new View(a);
-        buttons.addView(gap, new LinearLayout.LayoutParams(dp(10), 0));
-        buttons.addView(DokshoViews.pill(a, a.getString(R.string.doksho_eim_ok), v -> {
-            dialog.dismiss();
-            if (!own[0]) {
-                DokshoUi.set(form ? DokshoUi.ANNOT_FORM_FONT : DokshoUi.ANNOT_TEXT_FONT, st[0]);
-                DokshoUi.set(form ? DokshoUi.ANNOT_FORM_SIZE : DokshoUi.ANNOT_TEXT_SIZE, st[1]);
-                DokshoUi.set(form ? DokshoUi.ANNOT_FORM_COLOR : DokshoUi.ANNOT_TEXT_COLOR, st[2]);
-            }
-            if (form) DokshoUi.set(DokshoUi.ANNOT_FORM_OWN, own[0]);
-            done.ok(edit.getText().toString(), st[0], st[1], st[2], own[0]);
-        }));
-        box.addView(buttons);
-        dialog.show();
-        DokshoViews.transparentWindow(dialog);
-        if (dialog.getWindow() != null) {
-            dialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
-            dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE
-                    | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-        }
-        edit.requestFocus();
     }
 
     private interface Chosen {

@@ -30,6 +30,12 @@
     <string name="doksho_annot_size" translatable="false">Size: %1$s pt</string>
     <string name="doksho_annot_size_auto" translatable="false">Size: fits the field</string>
     <string name="doksho_annot_own_style" translatable="false">Keep each field’s own font, size and colour</string>
+    <string name="doksho_annot_text_font_note" translatable="false">The font file is embedded in the PDF, cut down to the characters the text box uses.</string>
+    <string name="doksho_annot_position_unit" translatable="false">pt, from the page’s top-left corner</string>
+    <string name="doksho_annot_move_left" translatable="false">Move left</string>
+    <string name="doksho_annot_move_up" translatable="false">Move up</string>
+    <string name="doksho_annot_move_down" translatable="false">Move down</string>
+    <string name="doksho_annot_move_right" translatable="false">Move right</string>
     <string name="doksho_annot_cjk_note" translatable="false">Japanese, Chinese, Korean, Greek and Cyrillic text is set in a matching font automatically.</string>
 
     <string name="doksho_annot_new_text" translatable="false">New text box</string>

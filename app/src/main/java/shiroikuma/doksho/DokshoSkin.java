@@ -199,6 +199,11 @@ public final class DokshoSkin {
 
     private static void walk(View v, int kind, boolean inBar) {
         if (skipWhole(v)) return;
+        if (v instanceof androidx.cardview.widget.CardView && v.findViewById(R.id.popupContent) != null) {
+            // one of Librera's draggable popups (the text popup, …): drawn as our dialogs
+            popupCard((androidx.cardview.widget.CardView) v);
+            kind = KIND_DIALOG;
+        }
         Memo m = memo(v);
         boolean bar = inBar || background(v, m, kind, inBar);
 
@@ -222,6 +227,23 @@ public final class DokshoSkin {
             ViewGroup g = (ViewGroup) v;
             for (int i = 0; i < g.getChildCount(); i++) walk(g.getChildAt(i), kind, bar);
         }
+    }
+
+    /** A draggable popup's card: the dialog ground, the dialog border and corners. */
+    private static void popupCard(androidx.cardview.widget.CardView card) {
+        Integer stamped = (Integer) card.getTag(R.id.doksho_skin_box);
+        if (stamped != null && stamped == DokshoUi.stamp()) return;
+        Context c = card.getContext();
+        float radius = DokshoViews.dp(c, DokshoUi.i(DokshoUi.DLG_RADIUS));
+        card.setCardBackgroundColor(DokshoUi.i(DokshoUi.C_DLG_BG));
+        card.setRadius(radius);
+        GradientDrawable frame = new GradientDrawable();
+        frame.setShape(GradientDrawable.RECTANGLE);
+        frame.setCornerRadius(radius);
+        frame.setColor(Color.TRANSPARENT);
+        frame.setStroke(DokshoUi.borderPx(c, DokshoUi.DLG_BORDER_W), DokshoUi.i(DokshoUi.C_DLG_BORDER));
+        card.setForeground(frame);
+        card.setTag(R.id.doksho_skin_box, DokshoUi.stamp());
     }
 
     // ---- colours by role -------------------------------------------------------------------------

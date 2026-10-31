@@ -464,10 +464,12 @@ dk_place_line(fz_context* ctx, dk_glyphs* out, const int* ucs, const int* gids, 
 }
 
 /* Lays the text out exactly as MuPDF's write_variable_text would (single-line, multi-line, comb);
- * returns the size used (an automatic size resolved). */
+ * returns the size used (an automatic size resolved). Multi-line text puts its first baseline
+ * base x size below the top and the next ones lead x size apart (fields 1.116 / 1.116, text boxes
+ * 0.8 / 1.2 — MuPDF's own numbers for each). */
 static float
 dk_layout(fz_context* ctx, fz_font* font, const char* text, float size, float w, float h, float b, int multiline,
-          int comb, int q, dk_glyphs* out, int* missing)
+          int comb, int q, float base, float lead, dk_glyphs* out, int* missing)
 {
     int n = 0, cap = (int)strlen(text) + 1;
     int* ucs = fz_malloc(ctx, sizeof(int) * cap);
@@ -502,8 +504,8 @@ dk_layout(fz_context* ctx, fz_font* font, const char* text, float size, float w,
             }
         }
         if (multiline) {
-            float lh = size * 1.116f;
-            float y = pad + H - size * 1.116f;
+            float lh = size * lead;
+            float y = pad + H - size * base;
             float maxw = W / size;
             int a = 0;
             while (a < n) {
@@ -1044,7 +1046,7 @@ FN(setWidgetValueFont)(JNIEnv* env, jclass clazz, jlong dochandle, jlong pagehan
         float border = pdf_annot_border_width(ctx, w);
         int q = pdf_annot_quadding(ctx, w);
         float used_size = dk_layout(ctx, font, value, size, bbox.x1 - bbox.x0, bbox.y1 - bbox.y0, border, multiline,
-                                    comb, q, &g, &missing);
+                                    comb, q, 1.116f, 1.116f, &g, &missing);
 
         contents = fz_new_buffer(ctx, dl + 64 + g.n * 16);
         if (cut >= 0)
@@ -1237,16 +1239,117 @@ style_free_text(fz_context* ctx, pdf_annot* a, int font, float size, jint argb)
     pdf_set_annot_border_width(ctx, a, 0);
 }
 
-/* A text box at (x, y, w, h), normalised; returns its index or -1. */
+/* ---- text boxes in a font file -------------------------------------------------------------- *
+ *
+ * MuPDF draws a FreeText box in a base-14 font, and any text those cannot encode (Czech ř, č, ě, ů …)
+ * goes through its HTML layout, which in Librera's patched build draws nothing at all. So a text
+ * box gets our own appearance: the words laid out by dk_layout (first baseline 0.8 em below the
+ * top, lines 1.2 em apart, breaks at spaces — MuPDF's FreeText numbers) in a TrueType / OpenType
+ * file embedded as a subset; the reader's preview lays it out the same way in the same file. The
+ * box remembers the file under /DokshoFont, so a move or an edit draws it again in it. Its /DA
+ * (Helvetica, size, colour) stays for other viewers that redraw it. */
+
+/* Draws the box's appearance in the font file at path, at the size and colour of its /DA. */
+static void
+dk_free_text_ap(fz_context* ctx, pdf_document* doc, pdf_annot* a, const char* path)
+{
+    fz_buffer* file = NULL;
+    fz_buffer* contents = NULL;
+    fz_font* font = NULL;
+    pdf_obj* res = NULL;
+    pdf_obj* f0 = NULL;
+    dk_glyphs g = {0};
+    int* code = NULL;
+    fz_var(file);
+    fz_var(contents);
+    fz_var(font);
+    fz_var(res);
+    fz_var(f0);
+    fz_var(code);
+    fz_try(ctx)
+    {
+        const char* da_font;
+        float size = 12, col[4] = { 0, 0, 0, 0 }, c[3];
+        int n = 0, missing = 0;
+        pdf_annot_default_appearance(ctx, a, &da_font, &size, &n, col);
+        if (size <= 0) size = 12;
+        if (n == 1) {
+            c[0] = c[1] = c[2] = col[0];
+        } else if (n == 4) {
+            c[0] = 1 - fminf(1, col[0] + col[3]);
+            c[1] = 1 - fminf(1, col[1] + col[3]);
+            c[2] = 1 - fminf(1, col[2] + col[3]);
+        } else {
+            c[0] = col[0];
+            c[1] = col[1];
+            c[2] = col[2];
+        }
+        const char* text = pdf_annot_contents(ctx, a);
+        fz_rect r = pdf_annot_rect(ctx, a);
+
+        file = fz_read_file(ctx, path);
+        font = fz_new_font_from_buffer(ctx, NULL, file, 0, 0);
+        dk_layout(ctx, font, text ? text : "", size, r.x1 - r.x0, r.y1 - r.y0, 0, 1, 0, pdf_annot_quadding(ctx, a),
+                  0.8f, 1.2f, &g, &missing);
+
+        contents = fz_new_buffer(ctx, 128 + g.n * 16);
+        fz_append_printf(ctx, contents, "q\n%g %g %g %g re\nW\nn\n", r.x0, r.y0, r.x1 - r.x0, r.y1 - r.y0);
+        if (g.n > 0) {
+            code = fz_malloc(ctx, sizeof(int) * g.n);
+            f0 = dk_add_font(ctx, doc, file, font, &g, code);
+            fz_append_printf(ctx, contents, "BT\n/DkF %g Tf\n%g %g %g rg\n", size, c[0], c[1], c[2]);
+            for (int i = 0; i < g.n; i++) {
+                if (i == 0 || g.y[i] != g.y[i - 1]) {
+                    if (i > 0) fz_append_string(ctx, contents, "> Tj\n");
+                    fz_append_printf(ctx, contents, "1 0 0 1 %g %g Tm\n<", r.x0 + g.x[i], r.y0 + g.y[i]);
+                }
+                fz_append_printf(ctx, contents, "%04x", code[i]);
+            }
+            fz_append_string(ctx, contents, "> Tj\nET\n");
+        }
+        fz_append_string(ctx, contents, "Q\n");
+
+        res = pdf_new_dict(ctx, doc, 1);
+        pdf_obj* fonts = pdf_dict_put_dict(ctx, res, PDF_NAME(Font), 1);
+        if (f0)
+            pdf_dict_puts(ctx, fonts, "DkF", f0);
+        pdf_set_annot_appearance(ctx, a, "N", NULL, fz_identity, r, res, contents);
+        pdf_dict_puts_drop(ctx, pdf_annot_obj(ctx, a), DOKSHO_FONT_KEY, pdf_new_text_string(ctx, path));
+    }
+    fz_always(ctx)
+    {
+        dk_free(ctx, &g);
+        fz_free(ctx, code);
+        fz_drop_buffer(ctx, file);
+        fz_drop_buffer(ctx, contents);
+        fz_drop_font(ctx, font);
+        pdf_drop_obj(ctx, res);
+        pdf_drop_obj(ctx, f0);
+    }
+    fz_catch(ctx) fz_rethrow(ctx);
+}
+
+/* The font file a text box is drawn in, or NULL (MuPDF's own drawing). */
+static const char*
+dk_free_text_font(fz_context* ctx, pdf_annot* a)
+{
+    pdf_obj* f = pdf_dict_gets(ctx, pdf_annot_obj(ctx, a), DOKSHO_FONT_KEY);
+    const char* p = pdf_is_string(ctx, f) ? pdf_to_text_string(ctx, f) : NULL;
+    return p && *p ? p : NULL;
+}
+
+/* A text box at (x, y, w, h), normalised, drawn in the font file at fontpath (null: MuPDF's
+ * base-14 drawing); returns its index or -1. */
 JNIEXPORT jint JNICALL
 FN(addText)(JNIEnv* env, jclass clazz, jlong dochandle, jlong pagehandle, jfloat x, jfloat y, jfloat w, jfloat h,
-            jstring jtext, jint font, jfloat size, jint argb)
+            jstring jtext, jint font, jfloat size, jint argb, jstring jfontpath)
 {
     target t;
     if (!open_page(dochandle, pagehandle, &t) || !jtext)
         return -1;
     fz_context* ctx = t.ctx;
     const char* text = (*env)->GetStringUTFChars(env, jtext, NULL);
+    const char* path = jfontpath ? (*env)->GetStringUTFChars(env, jfontpath, NULL) : NULL;
     int index = -1;
     pdf_enable_journal(ctx, t.doc);
     pdf_begin_operation(ctx, t.doc, "Add text box");
@@ -1258,6 +1361,8 @@ FN(addText)(JNIEnv* env, jclass clazz, jlong dochandle, jlong pagehandle, jfloat
         style_free_text(ctx, a, font, size, argb);
         pdf_set_annot_contents(ctx, a, text);
         pdf_update_page(ctx, t.page);
+        if (path && *path)
+            dk_free_text_ap(ctx, t.doc, a, path);
         int i = 0;
         for (pdf_annot* it = pdf_first_annot(ctx, t.page); it; it = pdf_next_annot(ctx, it), i++)
             if (it == a)
@@ -1265,7 +1370,12 @@ FN(addText)(JNIEnv* env, jclass clazz, jlong dochandle, jlong pagehandle, jfloat
         pdf_drop_annot(ctx, a);
         pdf_end_operation(ctx, t.doc);
     }
-    fz_always(ctx) (*env)->ReleaseStringUTFChars(env, jtext, text);
+    fz_always(ctx)
+    {
+        (*env)->ReleaseStringUTFChars(env, jtext, text);
+        if (path)
+            (*env)->ReleaseStringUTFChars(env, jfontpath, path);
+    }
     fz_catch(ctx)
     {
         pdf_abandon_operation(ctx, t.doc);
@@ -1275,10 +1385,12 @@ FN(addText)(JNIEnv* env, jclass clazz, jlong dochandle, jlong pagehandle, jfloat
     return index;
 }
 
-/* Changes a text box: rect null keeps the place, text null keeps the words, font < 0 the style. */
+/* Changes a text box: rect null keeps the place, text null the words, font < 0 the style (and
+ * fontpath with it — else null draws it in MuPDF's base-14 fonts). A box drawn in a font file is
+ * drawn in it again. */
 JNIEXPORT jboolean JNICALL
 FN(editText)(JNIEnv* env, jclass clazz, jlong dochandle, jlong pagehandle, jint index, jfloatArray jrect,
-             jstring jtext, jint font, jfloat size, jint argb)
+             jstring jtext, jint font, jfloat size, jint argb, jstring jfontpath)
 {
     target t;
     if (!open_page(dochandle, pagehandle, &t))
@@ -1291,13 +1403,24 @@ FN(editText)(JNIEnv* env, jclass clazz, jlong dochandle, jlong pagehandle, jint 
         has_rect = 1;
     }
     const char* text = jtext ? (*env)->GetStringUTFChars(env, jtext, NULL) : NULL;
+    const char* path = jfontpath ? (*env)->GetStringUTFChars(env, jfontpath, NULL) : NULL;
+    char* keep = NULL;
     int ok = 0;
+    fz_var(keep);
     pdf_enable_journal(ctx, t.doc);
     pdf_begin_operation(ctx, t.doc, has_rect && !text ? "Move text box" : "Edit text box");
     fz_try(ctx)
     {
         pdf_annot* a = nth_annot(ctx, t.page, index);
         if (a && pdf_annot_type(ctx, a) == PDF_ANNOT_FREE_TEXT) {
+            if (font < 0) {
+                const char* was = dk_free_text_font(ctx, a);
+                keep = was ? fz_strdup(ctx, was) : NULL;
+            } else {
+                keep = path && *path ? fz_strdup(ctx, path) : NULL;
+                if (!keep)
+                    pdf_dict_dels(ctx, pdf_annot_obj(ctx, a), DOKSHO_FONT_KEY);
+            }
             if (has_rect) {
                 fz_point p0 = to_page(&t, rect[0], rect[1]), p1 = to_page(&t, rect[2], rect[3]);
                 pdf_set_annot_rect(ctx, a, fz_make_rect(p0.x, p0.y, p1.x, p1.y));
@@ -1307,14 +1430,19 @@ FN(editText)(JNIEnv* env, jclass clazz, jlong dochandle, jlong pagehandle, jint 
             if (text)
                 pdf_set_annot_contents(ctx, a, text);
             pdf_update_page(ctx, t.page);
+            if (keep)
+                dk_free_text_ap(ctx, t.doc, a, keep);
             ok = 1;
         }
         pdf_end_operation(ctx, t.doc);
     }
     fz_always(ctx)
     {
+        fz_free(ctx, keep);
         if (text)
             (*env)->ReleaseStringUTFChars(env, jtext, text);
+        if (path)
+            (*env)->ReleaseStringUTFChars(env, jfontpath, path);
     }
     fz_catch(ctx)
     {
@@ -1323,6 +1451,24 @@ FN(editText)(JNIEnv* env, jclass clazz, jlong dochandle, jlong pagehandle, jint 
         ok = 0;
     }
     return ok ? JNI_TRUE : JNI_FALSE;
+}
+
+/* The font file a text box is drawn in, or null. */
+JNIEXPORT jstring JNICALL
+FN(annotFont)(JNIEnv* env, jclass clazz, jlong dochandle, jlong pagehandle, jint index)
+{
+    target t;
+    if (!open_page(dochandle, pagehandle, &t))
+        return NULL;
+    const char* v = NULL;
+    fz_try(t.ctx)
+    {
+        pdf_annot* a = nth_annot(t.ctx, t.page, index);
+        if (a)
+            v = dk_free_text_font(t.ctx, a);
+    }
+    fz_catch(t.ctx) v = NULL;
+    return v ? jstr(env, v) : NULL;
 }
 
 JNIEXPORT jboolean JNICALL

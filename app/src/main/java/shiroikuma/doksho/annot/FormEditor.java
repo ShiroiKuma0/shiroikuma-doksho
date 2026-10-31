@@ -7,13 +7,10 @@ import android.text.Editable;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.text.TextWatcher;
-import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -244,47 +241,8 @@ final class FormEditor {
 
     /** Scrolls the field near the top, then shows the editor beside it. */
     private void place(final AlertDialog dialog, final View box, final EditText edit) {
-        DisplayMetrics dm = a.getResources().getDisplayMetrics();
-        RectF r = fieldOnLayer();
-        int top = barBottom + dp(12);
-        int dy = Math.round(r.top - top);
-        int dx = 0;
-        if (r.left < dp(8)) dx = Math.round(r.left - dp(8));
-        else if (r.right > layer.getWidth() - dp(8)) dx = Math.round(Math.min(r.left - dp(8), r.right - layer.getWidth() + dp(8)));
-        if (dx != 0 || dy != 0) s.scrollBy(dx, dy);
         refresh();
-        layer.post(() -> {
-            RectF f = fieldOnLayer();
-            int[] loc = new int[2];
-            layer.getLocationOnScreen(loc);
-            int width = Math.min(dm.widthPixels - dp(16), dp(560));
-            box.measure(View.MeasureSpec.makeMeasureSpec(width - dp(20), View.MeasureSpec.EXACTLY),
-                    View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
-            int h = box.getMeasuredHeight() + dp(20);
-            int below = loc[1] + Math.round(f.bottom) + dp(6);
-            int above = loc[1] + Math.round(f.top) - dp(6) - h;
-            // the keyboard takes roughly the lower 40 % of the screen
-            int free = Math.round(dm.heightPixels * 0.6f);
-            int y;
-            if (below + h <= free || above < loc[1]) y = Math.min(below, dm.heightPixels - h);
-            else y = above;
-            dialog.show();
-            DokshoViews.transparentWindow(dialog);
-            Window win = dialog.getWindow();
-            if (win != null) {
-                WindowManager.LayoutParams lp = win.getAttributes();
-                lp.gravity = Gravity.TOP | Gravity.CENTER_HORIZONTAL;
-                lp.y = Math.max(0, y);
-                lp.width = width;
-                lp.dimAmount = 0f;
-                win.setAttributes(lp);
-                win.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND | WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
-                win.addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
-                win.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE
-                        | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
-            }
-            edit.requestFocus();
-        });
+        Dock.show(a, s, layer, barBottom, dialog, box, edit, this::fieldOnLayer);
     }
 
     private RectF fieldOnLayer() {

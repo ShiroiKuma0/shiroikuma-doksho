@@ -54,6 +54,13 @@ final class AnnotLayer extends View {
         void tapText(@NonNull AnnotSession.Hit hit, int annotIndex);
 
         void moveText(@NonNull Page page, int annotIndex, float[] newRect);
+
+        /** Reads a text box, for drawing its words while it is dragged. */
+        void dragPreview(@NonNull Page page, int annotIndex, @NonNull PreviewReady ready);
+    }
+
+    interface PreviewReady {
+        void on(@NonNull FieldPreview p);
     }
 
     private final AnnotSession session;
@@ -101,6 +108,9 @@ final class AnnotLayer extends View {
     private float[] moveNorm;
     private float moveDx;
     private float moveDy;
+    /** The dragged box's words, drawn where it would land (null until read). */
+    @Nullable
+    private FieldPreview moveText;
 
     private long stamp;
     private final ViewTreeObserver.OnPreDrawListener preDraw;
@@ -269,6 +279,15 @@ final class AnnotLayer extends View {
                     moveNorm = new float[]{a[o + 1], a[o + 2], a[o + 3], a[o + 4]};
                     moveFrom = session.toScreen(h.page, a[o + 1], a[o + 2], a[o + 3], a[o + 4]);
                     moveDx = moveDy = 0;
+                    moveText = null;
+                    final Page pg = h.page;
+                    final int index = idx;
+                    actions.dragPreview(pg, idx, p -> {
+                        if (moveIndex != index || movePage != pg) return;
+                        moveText = p;
+                        placeMoveText();
+                        invalidate();
+                    });
                 }
                 return;
             }
@@ -293,6 +312,7 @@ final class AnnotLayer extends View {
                 if (moveIndex >= 0 && moved) {
                     moveDx = ev.getX() - downX;
                     moveDy = ev.getY() - downY;
+                    placeMoveText();
                     invalidate();
                 }
                 return;
@@ -318,11 +338,7 @@ final class AnnotLayer extends View {
                 return;
             case TEXT: {
                 if (moveIndex >= 0 && moved) {
-                    RectF r = session.screenBox(movePage);
-                    float dnx = moveDx / r.width() * cropW(movePage);
-                    float dny = moveDy / r.height() * cropH(movePage);
-                    float[] n = {moveNorm[0] + dnx, moveNorm[1] + dny, moveNorm[2] + dnx, moveNorm[3] + dny};
-                    actions.moveText(movePage, moveIndex, n);
+                    actions.moveText(movePage, moveIndex, movedNorm());
                     // the ghost stays until the page comes back drawn with the box in its new place
                     return;
                 }
@@ -338,6 +354,19 @@ final class AnnotLayer extends View {
             }
             default:
         }
+    }
+
+    /** Where the dragged box would land, normalised. */
+    private float[] movedNorm() {
+        RectF r = session.screenBox(movePage);
+        float dnx = moveDx / r.width() * cropW(movePage);
+        float dny = moveDy / r.height() * cropH(movePage);
+        return new float[]{moveNorm[0] + dnx, moveNorm[1] + dny, moveNorm[2] + dnx, moveNorm[3] + dny};
+    }
+
+    private void placeMoveText() {
+        if (moveText == null || movePage == null || moveNorm == null) return;
+        System.arraycopy(movedNorm(), 0, moveText.field, 0, 4);
     }
 
     private static float cropW(Page p) {
@@ -359,6 +388,7 @@ final class AnnotLayer extends View {
     void moveDone() {
         moveIndex = -1;
         moveFrom = null;
+        moveText = null;
         invalidate();
     }
 
@@ -495,14 +525,28 @@ final class AnnotLayer extends View {
                 }
             }
         }
-        if (preview != null) preview.draw(canvas, session);
+        if (preview != null) {
+            preview.draw(canvas, session);
+            if (!preview.paper) {
+                // a text box being written: where it goes
+                float[] f = preview.field;
+                outline.setPathEffect(new DashPathEffect(new float[]{12f, 8f}, 0));
+                outline.setColor(accent);
+                canvas.drawRect(session.toScreen(preview.page, f[0], f[1], f[2], f[3]), outline);
+            }
+        }
         if (moveIndex >= 0 && moveFrom != null && (moved || moveDx != 0 || moveDy != 0)) {
             RectF g = new RectF(moveFrom);
             g.offset(moveDx, moveDy);
             outline.setPathEffect(null);
             outline.setColor(accent);
-            fill.setColor((accent & 0x00FFFFFF) | 0x33000000);
-            canvas.drawRect(g, fill);
+            if (moveText != null) {
+                // the words themselves, at their real size, where they would land
+                moveText.draw(canvas, session);
+            } else {
+                fill.setColor((accent & 0x00FFFFFF) | 0x33000000);
+                canvas.drawRect(g, fill);
+            }
             canvas.drawRect(g, outline);
         }
         for (Stroke s : pending) drawStroke(canvas, s);

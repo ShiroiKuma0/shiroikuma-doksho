@@ -377,14 +377,22 @@ public class AdvGuestureDetector extends SimpleOnGestureListener implements IMul
         isLongMovement = true;
 
         AppState.get().selectedText = avc.processLongTap(true, e, e, true);
+        // 白い熊 読書: handles at both ends of what the long-press selected, to stretch it
+        if (TxtUtils.isNotEmpty(AppState.get().selectedText)) {
+            final float[] ends = avc.selectionEnds();
+            if (ends != null) {
+                EventBus.getDefault().post(new MessagePageXY(MessagePageXY.TYPE_SHOW, -1, ends[0], ends[1], ends[2], ends[3]));
+            }
+        }
     }
 
     @Subscribe
     public void onSelectTextByAnchors(MessagePageXY event) {
         if (MessagePageXY.TYPE_SELECT_TEXT == event.getType()) {
 
-            float x = event.getX() - Dips.DP_36;
-            float y = event.getY() - Dips.DP_36 / 2;
+            // 白い熊 読書: the handles flank the selection, so their inner edges are its ends
+            float x = event.getX();
+            float y = event.getY();
 
             MotionEvent e1 = MotionEvent.obtain(0, 0, 0, x, y, 0);
             MotionEvent e2 = MotionEvent.obtain(0, 0, 0, event.getX1(), event.getY1(), 0);

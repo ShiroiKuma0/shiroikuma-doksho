@@ -73,11 +73,22 @@ public final class DokshoPdf {
     /** font code, size, 0xRRGGBB — or null. */
     public static native float[] annotStyle(long doc, long page, int index);
 
-    /** Returns the new box's annotation index, or -1. */
-    public static native int addText(long doc, long page, float x, float y, float w, float h, String text, int font, float size, int argb);
+    /**
+     * Returns the new box's annotation index, or -1. fontPath: the TrueType / OpenType file it is
+     * drawn and embedded in (null: MuPDF's base-14 drawing, which loses letters outside Latin-1).
+     */
+    public static native int addText(long doc, long page, float x, float y, float w, float h, String text, int font, float size,
+                                     int argb, String fontPath);
 
-    /** rect (x0 y0 x1 y1) null keeps the place, text null the words, font &lt; 0 the style. */
-    public static native boolean editText(long doc, long page, int index, float[] rect, String text, int font, float size, int argb);
+    /**
+     * rect (x0 y0 x1 y1) null keeps the place, text null the words, font &lt; 0 the style and font
+     * file (else fontPath, null for none). A box drawn in a font file is drawn in it again.
+     */
+    public static native boolean editText(long doc, long page, int index, float[] rect, String text, int font, float size,
+                                          int argb, String fontPath);
+
+    /** The font file a text box is drawn in, or null. */
+    public static native String annotFont(long doc, long page, int index);
 
     public static native boolean deleteAnnot(long doc, long page, int index);
 

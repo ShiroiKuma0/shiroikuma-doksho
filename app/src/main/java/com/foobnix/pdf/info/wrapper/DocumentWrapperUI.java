@@ -947,8 +947,12 @@ public class DocumentWrapperUI {
             anchorX.setVisibility(View.VISIBLE);
             anchorY.setVisibility(View.VISIBLE);
 
-            AnchorHelper.setXY(anchorX, event.getX(), event.getY());
-            AnchorHelper.setXY(anchorY, event.getX1(), event.getY1());
+            // 白い熊 読書: the handles flank the selection — the start one left of its first
+            // letter, the end one right of its last — instead of sitting on the words
+            // (the layout size: a handle that was gone has not been measured yet)
+            int w = anchorX.getLayoutParams().width, h = anchorX.getLayoutParams().height;
+            AnchorHelper.setXY(anchorX, event.getX() - w, event.getY() - h / 2f);
+            AnchorHelper.setXY(anchorY, event.getX1(), event.getY1() - h / 2f);
 
         }
 
@@ -1015,6 +1019,9 @@ public class DocumentWrapperUI {
 
         TintUtil.setTintImageWithAlpha(anchorX, AppState.get().isDayNotInvert ? Color.BLUE : Color.YELLOW, 150);
         TintUtil.setTintImageWithAlpha(anchorY, AppState.get().isDayNotInvert ? Color.BLUE : Color.YELLOW, 150);
+        // 白い熊 読書: handles that read on any page (the skin painted these yellow on white)
+        shiroikuma.doksho.SelectionHandle.apply(anchorX, true);
+        shiroikuma.doksho.SelectionHandle.apply(anchorY, false);
 
         anchorX.setVisibility(View.GONE);
         anchorY.setVisibility(View.GONE);
@@ -1030,7 +1037,7 @@ public class DocumentWrapperUI {
                 float y = anchorX.getY() + anchorX.getHeight() / 2;
 
                 float x1 = anchorY.getX();
-                float y1 = anchorY.getY();
+                float y1 = anchorY.getY() + anchorY.getHeight() / 2;
                 EventBus.getDefault()
                         .post(new MessagePageXY(MessagePageXY.TYPE_SELECT_TEXT, dc.getCurentPage(), x, y, x1, y1));
             }

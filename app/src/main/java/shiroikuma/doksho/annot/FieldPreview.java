@@ -23,6 +23,11 @@ import shiroikuma.doksho.DokshoNight;
  * 1.116 line spacing and breaks at spaces or between CJK characters, comb fields one character per
  * cell. The field's inside is painted the paper's colour first, so the old value does not show
  * through. Colours go through the reader's night mode, as the page does.
+ *
+ * <p>A text box ({@link #textBox}) is laid out by the same code with MuPDF's FreeText numbers
+ * (first baseline 0.8 em below the top, lines 1.2 em apart) and drawn without paper, so the page
+ * shows around its letters; {@link #cover} paints paper over where the box stood, so a box being
+ * edited or moved is not seen twice. Its {@link #field} may change while it shows (arrows, drags).
  */
 final class FieldPreview {
 
@@ -38,9 +43,16 @@ final class FieldPreview {
     final int comb;
     final int quadding;
     final float border;
+    /** Multi-line: the first baseline this many em below the top, the next ones {@link #lead} apart. */
+    float base = 1.116f;
+    float lead = 1.116f;
+    /** Paint the field's inside the paper's colour first (a form field: hide the old value). */
+    boolean paper = true;
+    /** Normalised x0 y0 x1 y1 painted paper first, or null: where an edited / moved box stood. */
+    float[] cover;
 
     private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.SUBPIXEL_TEXT_FLAG);
-    private final Paint paper = new Paint();
+    private final Paint paperPaint = new Paint();
 
     FieldPreview(@NonNull Page page, @NonNull float[] field, boolean multiline, int comb, int quadding, float border) {
         this.page = page;
@@ -49,7 +61,37 @@ final class FieldPreview {
         this.comb = multiline ? 0 : comb;
         this.quadding = quadding;
         this.border = border;
-        paper.setStyle(Paint.Style.FILL);
+        paperPaint.setStyle(Paint.Style.FILL);
+    }
+
+    /** A text box at rect (normalised; it may change while shown), laid out as doksho_annot.c draws it. */
+    static FieldPreview textBox(@NonNull Page page, @NonNull float[] rect, @NonNull Typeface typeface, float size, int color) {
+        FieldPreview p = new FieldPreview(page, rect, true, 0, 0, 0);
+        p.base = 0.8f;
+        p.lead = 1.2f;
+        p.paper = false;
+        p.typeface = typeface;
+        p.size = size;
+        p.color = color;
+        return p;
+    }
+
+    /** The text's longest line in em (as the layout measures it: glyph by glyph) and its line count. */
+    static float[] measure(@NonNull Typeface typeface, @NonNull String text) {
+        Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
+        p.setTypeface(typeface);
+        p.setTextSize(1000f);
+        float longest = 0;
+        String[] lines = text.replace("\r\n", "\n").replace('\r', '\n').split("\n", -1);
+        for (String l : lines) {
+            float w = 0;
+            int[] cps = l.replace('\t', ' ').codePoints().toArray();
+            int n = cps.length;
+            while (n > 0 && cps[n - 1] == ' ') n--;
+            for (int i = 0; i < n; i++) w += p.measureText(new String(Character.toChars(cps[i]))) / 1000f;
+            longest = Math.max(longest, w);
+        }
+        return new float[]{longest, lines.length};
     }
 
     /** A colour as the reader shows it: the night duotone, Librera's plain inversion, or as is. */
@@ -135,8 +177,8 @@ final class FieldPreview {
         }
         List<G> glyphs = new ArrayList<>();
         if (multiline) {
-            float lh = size * 1.116f;
-            float y = pad + H - size * 1.116f;
+            float lh = size * lead;
+            float y = pad + H - size * base;
             float maxw = W / size;
             int a = 0;
             while (a < n) {
@@ -191,8 +233,9 @@ final class FieldPreview {
 
         float b = border * k;
         RectF inner = new RectF(r.left + b, r.top + b, r.right - b, r.bottom - b);
-        paper.setColor(shown(0xFFFFFFFF));
-        canvas.drawRect(inner, paper);
+        paperPaint.setColor(shown(0xFFFFFFFF));
+        if (cover != null) canvas.drawRect(s.toScreen(page, cover[0], cover[1], cover[2], cover[3]), paperPaint);
+        if (paper) canvas.drawRect(inner, paperPaint);
         canvas.save();
         canvas.clipRect(inner);
         paint.setTextSize(size * k);

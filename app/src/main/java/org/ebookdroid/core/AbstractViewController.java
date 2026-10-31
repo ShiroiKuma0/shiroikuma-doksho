@@ -505,37 +505,44 @@ public abstract class AbstractViewController extends AbstractComponentController
                                 }
 
                             } else if (!single) {
+                                // 白い熊 読書: the ends are letters, not words — a word the start or end
+                                // falls in is cut there (clip) — and both ends on one line select
+                                // between them (upstream ran on to the line's end when the end sat a
+                                // pixel lower than the start).
                                 if (y2 > yLong) {
-                                    if (wordRect.top < tapRect.top && wordRect.bottom > tapRect.top && wordRect.right > tapRect.left) {
-                                        if (draw)
-                                            page.selectedText.add(line);
-                                        build.append(line.w + TxtUtils.space());
-
-                                        LOG.d("Add Word", line.w);
-                                    } else if (wordRect.top < tapRect.bottom && wordRect.bottom > tapRect.bottom && wordRect.left < tapRect.right) {
-                                        if (draw)
-                                            page.selectedText.add(line);
-                                        build.append(line.w + TxtUtils.space());
-
-                                        LOG.d("Add Word", line.w);
+                                    boolean onStart = wordRect.top < tapRect.top && wordRect.bottom > tapRect.top;
+                                    boolean onEnd = wordRect.top < tapRect.bottom && wordRect.bottom > tapRect.bottom;
+                                    TextWord part = null;
+                                    if (onStart && onEnd) {
+                                        part = clip(line, wordRect, tapRect.left, tapRect.right);
+                                    } else if (onStart && wordRect.right > tapRect.left) {
+                                        part = clip(line, wordRect, tapRect.left, Float.MAX_VALUE);
+                                    } else if (onEnd && wordRect.left < tapRect.right) {
+                                        part = clip(line, wordRect, -Float.MAX_VALUE, tapRect.right);
                                     } else if (wordRect.top > tapRect.top && wordRect.bottom < tapRect.bottom) {
+                                        part = line;
+                                    }
+                                    if (part != null) {
                                         if (draw)
-                                            page.selectedText.add(line);
-                                        build.append(line.w + TxtUtils.space());
+                                            page.selectedText.add(part);
+                                        build.append(part.w + TxtUtils.space());
 
-                                        LOG.d("Add Word", line.w);
+                                        LOG.d("Add Word", part.w);
                                     }
 
                                 } else if (RectF.intersects(wordRect, tapRect)) {
-                                    if (draw)
-                                        page.selectedText.add(line);
-                                    if (AppState.get().selectingByLetters) {
-                                        build.append(line.w);
-                                    } else {
-                                        build.append(line.w.trim() + " ");
-                                    }
+                                    final TextWord part = clip(line, wordRect, tapRect.left, tapRect.right);
+                                    if (part != null) {
+                                        if (draw)
+                                            page.selectedText.add(part);
+                                        if (AppState.get().selectingByLetters) {
+                                            build.append(part.w);
+                                        } else {
+                                            build.append(part.w.trim() + " ");
+                                        }
 
-                                    LOG.d("Add Word", line.w);
+                                        LOG.d("Add Word", part.w);
+                                    }
                                 }
                             }
                             if (TxtUtils.isNotEmpty(line.w)) {
@@ -579,6 +586,61 @@ public abstract class AbstractViewController extends AbstractComponentController
 
         return null;
 
+    }
+
+    /**
+     * 白い熊 読書: the letters of a word whose middles lie between screen x from and to, as a word
+     * of their own (the whole word when all of them do, or when it has no letters to cut); null
+     * when none do.
+     */
+    private static TextWord clip(final TextWord word, final RectF wordRect, final float from, final float to) {
+        final int n = word.charCount();
+        if (n == 0 || word.width() <= 0) {
+            return word;
+        }
+        int first = -1, last = -1;
+        for (int i = 0; i < n; i++) {
+            float mid = (word.charLeft[i] + word.charRight[i]) / 2;
+            float x = wordRect.left + (mid - word.left) / word.width() * wordRect.width();
+            if (x >= from && x <= to) {
+                if (first < 0) {
+                    first = i;
+                }
+                last = i;
+            }
+        }
+        return first < 0 ? null : word.part(first, last + 1);
+    }
+
+    /**
+     * 白い熊 読書: the selection's two ends on screen — the first selected word's left edge and the
+     * last one's right edge, each at its word's vertical middle (x0, y0, x1, y1) — or null. The
+     * selection handles are put there after a long-press, so the selection can be stretched.
+     */
+    public final float[] selectionEnds() {
+        final float zoom = base.getZoomModel().getZoom();
+        RectF first = null, last = null;
+        for (final Page page : model.getPages(firstVisiblePage, lastVisiblePage + 1)) {
+            if (page.selectedText.isEmpty()) {
+                continue;
+            }
+            final RectF bounds = page.getBounds(zoom);
+            for (final TextWord w : page.selectedText) {
+                final RectF r = page.getPageRegion(bounds, w);
+                if (r == null) {
+                    continue;
+                }
+                if (first == null) {
+                    first = r;
+                }
+                last = r;
+            }
+        }
+        if (first == null) {
+            return null;
+        }
+        return new float[]{first.left - getScrollX(), first.centerY() - getScrollY(),
+                last.right - getScrollX(), last.centerY() - getScrollY()};
     }
 
     public final boolean processTap(final TouchManager.Touch type, final MotionEvent e) {

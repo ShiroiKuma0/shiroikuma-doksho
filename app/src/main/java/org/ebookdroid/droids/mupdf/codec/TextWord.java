@@ -11,6 +11,16 @@ public class TextWord extends RectF {
     private RectF original;
     public int number;
 
+    /**
+     * 白い熊 読書: the word's letters — their text and their left / right edges (in the word's own
+     * coordinates, normalised with it) — so a selection handle can end inside a word. Null for
+     * words built without letters (DjVu, PDFium, EPUB).
+     */
+    public java.util.ArrayList<String> chars;
+    public float[] charLeft;
+    public float[] charRight;
+    private int charCount;
+
     public TextWord() {
         super();
         w = "";
@@ -29,6 +39,23 @@ public class TextWord extends RectF {
 
     public void Add(TextChar tc) {
         super.union(tc);
+        if (chars == null) {
+            chars = new java.util.ArrayList<>();
+            charLeft = new float[8];
+            charRight = new float[8];
+        }
+        if (charCount == charLeft.length) {
+            charLeft = java.util.Arrays.copyOf(charLeft, charCount * 2);
+            charRight = java.util.Arrays.copyOf(charRight, charCount * 2);
+        }
+        try {
+            chars.add(new String(Character.toChars(tc.c)));
+        } catch (Exception e) {
+            chars.add("");
+        }
+        charLeft[charCount] = tc.left;
+        charRight[charCount] = tc.right;
+        charCount++;
         try {
             w = w.concat(new String(Character.toChars(tc.c)));
         }catch (Exception e){
@@ -40,6 +67,40 @@ public class TextWord extends RectF {
     public TextWord(String w, RectF rect) {
         super(rect);
         this.w = w;
+    }
+
+    public int charCount() {
+        return charCount;
+    }
+
+    /** 白い熊 読書: the letters' edges normalised as the word's own were (x → (x - left) / width). */
+    public void normalizeChars(float left, float width) {
+        for (int i = 0; i < charCount; i++) {
+            charLeft[i] = (charLeft[i] - left) / width;
+            charRight[i] = (charRight[i] - left) / width;
+        }
+    }
+
+    /**
+     * 白い熊 読書: the letters [from, to) as a word of their own (same line, narrower box), or this
+     * word when that is all of it.
+     */
+    public TextWord part(int from, int to) {
+        if (from <= 0 && to >= charCount) {
+            return this;
+        }
+        StringBuilder b = new StringBuilder();
+        for (int i = from; i < to; i++) {
+            if (!"\u00AD".equals(chars.get(i))) b.append(chars.get(i)); // MuPDF's soft hyphen
+        }
+        TextWord t = new TextWord(b.toString(), new RectF(charLeft[from], top, charRight[to - 1], bottom));
+        if (original != null) {
+            // the same cut in PDF points (highlight, underline and strike-out are made from it)
+            float k = width() > 0 ? original.width() / width() : 0;
+            t.original = new RectF(original.left + (charLeft[from] - left) * k, original.top,
+                    original.left + (charRight[to - 1] - left) * k, original.bottom);
+        }
+        return t;
     }
 
     public RectF getOriginal() {

@@ -332,6 +332,11 @@ public abstract class DragingPopup {
             }
         });
         initState();
+        // 白い熊 読書: a popup of scrolling content is as tall as its content (up to the screen) and
+        // kept on the screen — the fixed 400 dp cut the text popup's last row in half
+        if (com.foobnix.pdf.info.AppsConfig.IS_DOKSHO) {
+            shiroikuma.doksho.DokshoPopupFit.fit(anchor, popupView, popupContent, topHeaderLayout);
+        }
 
         View right = popupView.findViewById(R.id.rigth);
         right.setOnTouchListener(new OnTouchListener() {

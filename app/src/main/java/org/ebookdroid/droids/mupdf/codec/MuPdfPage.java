@@ -623,6 +623,7 @@ public class MuPdfPage extends AbstractCodecPage {
         }
         wd.setOriginal(wd);
         update((RectF) wd);
+        if (wd.charCount() > 0) wd.normalizeChars(pageBounds.left, pageBounds.width());
     }
 
     public void update(RectF wd) {

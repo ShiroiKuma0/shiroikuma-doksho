@@ -103,7 +103,15 @@ Keep it a **small, legible layer** so rebases stay cheap:
     `pdf/info/view/ProgressDraw.java` (accent colour).
   - Saving edits into the original: `OpenerActivity.java` (`DokshoOrigin.realFile` before Librera's
     copy fallback, `DokshoOrigin.opened` as the book opens), `sys/VerticalModeController.java`
-    (`onCloseActivityAdnShowInterstial` → `annot.SaveOnClose.ask`).
+    (`onCloseActivityAdnShowInterstial` → `annot.SaveOnClose.ask`), `ui2/AdsFragmentActivity.java`
+    (only the main screen arms the double Back — in a reader a second Back skipped the save prompt).
+  - Text selection with handles, letter by letter (`shiroikuma/doksho/SelectionHandle.java`):
+    `org/ebookdroid/core/AbstractViewController.java` (`selectionEnds`, `clip`),
+    `org/ebookdroid/droids/mupdf/codec/TextWord.java` (letter boxes, `part`), `MuPdfPage.java`
+    (`normalizeChars`), `sys/AdvGuestureDetector.java` (handles shown on long-press, no 36 dp offset),
+    `pdf/info/wrapper/DocumentWrapperUI.java` (handles placed beside the selection).
+  - `pdf/info/view/DragingPopup.java` — `DokshoPopupFit.fit` sizes scrolling popups to their content
+    and keeps them on screen; `DokshoSkin` themes the popup card as a dialog.
   - `README.md` — ours (upstream edits theirs every release: on a rebase conflict keep ours).
   - `.gitignore` — our block at the end.
 

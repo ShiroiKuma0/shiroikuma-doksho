@@ -191,7 +191,12 @@ public abstract class AdsFragmentActivity extends FragmentActivity {
             onBackPressedFinishImpl();
             return;
         }
-        this.doubleBackToExitPressedOnce = true;
+        // 白い熊 読書: only the main screen arms the double back. In a reader nothing ever reset it,
+        // so any second Back (even one that only closed a panel or dialog) finished the activity
+        // past onCloseActivityAdnShowInterstial — closing the book without the save prompt.
+        if (!AppsConfig.IS_DOKSHO || this instanceof MainTabs2) {
+            this.doubleBackToExitPressedOnce = true;
+        }
 
         if (this instanceof MainTabs2) {
             if (handler != null) {

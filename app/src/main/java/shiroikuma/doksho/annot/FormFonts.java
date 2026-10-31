@@ -54,6 +54,27 @@ final class FormFonts {
     }
 
     @NonNull
+    /** Android's own files for the three built-ins, best first. */
+    private static final String[][] BUILTIN_FILES = {
+            {"RobotoStatic-Regular.ttf", "Roboto-Regular.ttf", "NotoSans-Regular.ttf", "DroidSans.ttf"},
+            {"NotoSerif-Regular.ttf", "DroidSerif-Regular.ttf", "SourceSerifPro-Regular.ttf"},
+            {"DroidSansMono.ttf", "RobotoMono-Regular.ttf", "CutiveMono.ttf", "NotoSansMono-Regular.ttf"},
+    };
+
+    /**
+     * The file a text box in built-in font 0–2 is drawn and embedded in (text boxes always embed:
+     * MuPDF's base-14 drawing loses any letter outside Latin-1, ř and č among them), or null.
+     */
+    @Nullable
+    static String builtinFile(int font) {
+        String[] names = BUILTIN_FILES[font >= 0 && font < BUILTIN_FILES.length ? font : 0];
+        for (String n : names) {
+            File f = new File("/system/fonts", n);
+            if (f.isFile()) return f.getAbsolutePath();
+        }
+        return font != 0 ? builtinFile(0) : null;
+    }
+
     static Typeface builtinTypeface(int font) {
         return font == 1 ? Typeface.SERIF : font == 2 ? Typeface.MONOSPACE : Typeface.SANS_SERIF;
     }

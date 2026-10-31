@@ -86,6 +86,7 @@ public final class DokshoUi {
     public static final String ANNOT_TEXT_FONT = "annot_text_font";       // 0 sans, 1 serif, 2 mono
     public static final String ANNOT_TEXT_SIZE = "annot_text_size";       // points
     public static final String ANNOT_TEXT_COLOR = "annot_text_color";
+    public static final String ANNOT_TEXT_FONT_FILE = "annot_text_font_file"; // a TrueType / OpenType file; "" = ANNOT_TEXT_FONT
     public static final String ANNOT_FORM_FONT = "annot_form_font";
     public static final String ANNOT_FORM_SIZE = "annot_form_size";       // points, 0 = fit the field
     public static final String ANNOT_FORM_COLOR = "annot_form_color";
@@ -185,6 +186,7 @@ public final class DokshoUi {
         ALL.add(new Setting(ANNOT_TEXT_FONT, 0));
         ALL.add(new Setting(ANNOT_TEXT_SIZE, 12));
         ALL.add(new Setting(ANNOT_TEXT_COLOR, BLACK));
+        ALL.add(new Setting(ANNOT_TEXT_FONT_FILE, ""));
         ALL.add(new Setting(ANNOT_FORM_FONT, 0));
         ALL.add(new Setting(ANNOT_FORM_SIZE, 0));
         ALL.add(new Setting(ANNOT_FORM_COLOR, BLACK));
