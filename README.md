@@ -13,7 +13,7 @@ black-yellow skin, category Export / Import, and headless backup automation — 
 
 Installs **side-by-side** with Librera, Librera PRO and Librera F-Droid (app id `shiroikuma.doksho`).
 
-**📥 Latest release: [`10.0.19+002`](https://github.com/ShiroiKuma0/shiroikuma-doksho/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-doksho/releases)
+**📥 Latest release: [`10.0.19+010`](https://github.com/ShiroiKuma0/shiroikuma-doksho/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-doksho/releases)
 
 </div>
 
@@ -24,10 +24,12 @@ Installs **side-by-side** with Librera, Librera PRO and Librera F-Droid (app id 
 The reader's edit button opens a small toolbar over the page: **fill in forms**, **text boxes**,
 **pen** and **eraser**, with undo and redo. A long-press on a tool opens its options: colour,
 thickness and opacity for the pen, size and what it erases for the eraser, font, size and colour
-for text. Form fields take **any TrueType or OpenType font** — your own, Android's, or the three
+for text. Text boxes and form fields take **any TrueType or OpenType font** — your own, Android's, or the three
 every viewer has. The font goes into the PDF cut down to just the characters used, Japanese
 included. While you type, the text is drawn over the field at its real size and zoom, so you see
-exactly how it sits among the print. Everything is real PDF content: form values, annotations and
+exactly how it sits among the print. A text box's editor docks beside it with arrows that nudge
+it point by point and its X / Y in points, so the lines of a form without fields line up in a
+column. Everything is real PDF content: form values, annotations and
 ink, readable in any viewer.
 
 ---

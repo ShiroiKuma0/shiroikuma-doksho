@@ -6,6 +6,29 @@
 Releases of [白い熊 読書](https://github.com/ShiroiKuma0/shiroikuma-doksho), each built on a Librera
 Reader release. Librera Reader's own changelog follows unchanged below.
 
+## 白い熊 読書 10.0.19+010 — 2026-10-31
+
+Built on **Librera Reader 10.0.19** (upstream tag `10.0.19`).
+
+### PDF editing
+- **Text boxes in Czech and every other script.** A box with letters such as ř, č, ě or ů came out empty: MuPDF falls back to a layout that drew nothing for them. Boxes now carry their own appearance in an embedded subset of the chosen font, which also travels with the box when it moves.
+- **Text boxes in any font.** The same font list as form fields: Sans, Serif, Mono, your imported fonts, Android's own, or a new font file.
+- **The text-box editor docks beside the box.** The page scrolls the box near the top and the editor opens right below it (above when there is no room), with the text drawn live on the page at its real size, font and colour.
+- **Arrows move the box while typing.** ← ↑ ↓ → nudge it by 1 pt, repeating while held, with the preview following.
+- **X / Y coordinates.** The editor shows the box's top-left corner in points from the page's top-left corner, updated as it moves; typing a value moves the box there — boxes standing in for the lines of a form without fields line up in an exact column.
+- **Dragging a box shows its text**, at its real size and position, in place of a yellow square.
+
+### Saving
+- **Edits are no longer lost on a second Back.** In a reader, any second Back (even one that only closed a panel) closed the book past the save prompt and discarded the edits. Only the main screen keeps Librera's double-Back exit.
+
+### Reading
+- **Selection handles.** A long-press on text selects it with a handle at each end; drag either to change the extent — letter by letter, not by whole words. The handles are blue in a white and black ring, visible on white paper and in night mode, and appear in the right place from the first long-press.
+- **Copied text keeps its spaces** when a selection ends inside a word, and a selection on one line no longer takes in the rest of the line.
+
+### UI
+- **Popups in the dialog theme.** The selected-text popup and Librera's other draggable popups use the *Dialogs & menus* colours, border and corners (black ground, yellow text and border by default).
+- **Popups are not cut off.** A popup whose content scrolls opens as tall as its content, up to the screen, and moves up to stay on screen.
+
 ## 白い熊 読書 10.0.19+002 — 2026-10-30
 
 Built on **Librera Reader 10.0.19** (upstream tag `10.0.19`) — every customization of 9.6.39+009
